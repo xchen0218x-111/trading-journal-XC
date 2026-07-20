@@ -5,12 +5,12 @@ let currentAssetType = "Stock";
 
 
 
-
 function loadCalendar(){
 
 
 const page =
 document.getElementById("page");
+
 
 
 page.innerHTML = `
@@ -56,6 +56,7 @@ ETF
 
 
 
+
 <div class="calendar-container">
 
 
@@ -81,6 +82,7 @@ July 2026
 
 
 
+
 <div class="calendar-grid">
 
 ${generateCalendarDays()}
@@ -94,6 +96,7 @@ ${generateCalendarDays()}
 
 
 </div>
+
 
 
 
@@ -117,27 +120,25 @@ Add Trade
 
 
 
+
 <label>
-Date
+
+Trade Date & Time
+
 </label>
 
 
-<input 
-id="trade-date"
-type="date">
+
+<input
+
+id="trade-datetime"
+
+placeholder="2026/7/20 15:01:30"
+
+>
 
 
 
-
-
-<label>
-Time
-</label>
-
-
-<input 
-id="trade-time"
-type="time">
 
 
 
@@ -146,6 +147,7 @@ type="time">
 <label>
 Asset Type
 </label>
+
 
 
 <select id="asset-type">
@@ -164,9 +166,12 @@ Asset Type
 
 
 
+
+
 <label>
 Trade Text
 </label>
+
 
 
 <textarea
@@ -181,12 +186,17 @@ placeholder="Paste your trade description here"
 
 
 
+
+
+
 <label>
 Emotion
 </label>
 
 
+
 <select id="emotion">
+
 
 <option>Neutral</option>
 
@@ -200,7 +210,11 @@ Emotion
 
 <option>Regret</option>
 
+
 </select>
+
+
+
 
 
 
@@ -209,6 +223,7 @@ Emotion
 <label>
 Decision Type
 </label>
+
 
 
 <select id="decision">
@@ -225,12 +240,18 @@ Decision Type
 
 
 
+
+
 <label>
 Note
 </label>
 
 
+
 <textarea id="trade-note"></textarea>
+
+
+
 
 
 
@@ -244,12 +265,13 @@ Parse Trade
 
 
 
-
 <div id="parse-result"></div>
 
 
 
+
 </div>
+
 
 
 
@@ -264,6 +286,7 @@ Parse Trade
 <h2>
 Trade History
 </h2>
+
 
 
 
@@ -289,6 +312,7 @@ ${renderTradeHistory()}
 
 
 
+
 </div>
 
 
@@ -298,9 +322,6 @@ ${renderTradeHistory()}
 
 
 }
-
-
-
 
 
 
@@ -316,9 +337,6 @@ loadCalendar();
 
 
 }
-
-
-
 
 
 
@@ -343,12 +361,11 @@ t.assetType===currentAssetType
 
 
 
-
-
 function generateCalendarDays(){
 
 
 let html="";
+
 
 
 for(let i=1;i<=31;i++){
@@ -364,11 +381,13 @@ onclick="selectDay(${i},this)"
 >
 
 
+
 <span>
 
 ${i}
 
 </span>
+
 
 
 
@@ -379,11 +398,11 @@ ${getDailyProfit(i)}
 </p>
 
 
+
 </div>
 
 
 `;
-
 
 }
 
@@ -392,7 +411,6 @@ return html;
 
 
 }
-
 
 
 
@@ -413,14 +431,19 @@ getCurrentTrades()
 
 
 if(
+
 t.date &&
+
 t.date.endsWith(
+
 "-"+String(day).padStart(2,"0")
+
 )
 
 ){
 
-profit+=t.profit;
+
+profit += Number(t.profit)||0;
 
 
 }
@@ -439,6 +462,7 @@ return "";
 
 
 
+
 return (
 
 profit>0?"+$":"-$"
@@ -452,7 +476,6 @@ Math.abs(profit).toFixed(2);
 
 
 }
-
 
 
 
@@ -499,12 +522,14 @@ let principal=0;
 trades.forEach(t=>{
 
 
-profit+=Number(t.profit)||0;
+profit += Number(t.profit)||0;
 
-principal+=Number(t.principal)||0;
+
+principal += Number(t.principal)||0;
 
 
 });
+
 
 
 
@@ -523,16 +548,17 @@ principal
 
 
 
-
-
-
 function selectDay(day,element){
 
 
 if(selectedDay===day){
 
 
-document.getElementById("day-details").innerHTML="";
+document
+
+.getElementById("day-details")
+
+.innerHTML="";
 
 
 element.classList.remove("selected");
@@ -566,6 +592,7 @@ element.classList.add("selected");
 
 
 selectedDay=day;
+
 
 
 
@@ -604,6 +631,7 @@ July ${day}, 2026
 
 
 
+
 ${
 trades.length
 
@@ -611,28 +639,36 @@ trades.length
 
 trades.map(t=>`
 
+
 <div class="info-card">
+
 
 <b>${t.symbol}</b>
 
+
 <br>
+
 
 ${t.type}
 
-&nbsp;
+
 
 <span class="${getProfitClass(t)}">
+
 
 ${t.profit>=0?"+$":"-$"}
 
 ${Math.abs(t.profit).toFixed(2)}
+
 
 </span>
 
 
 </div>
 
+
 `).join("")
+
 
 :
 
@@ -651,13 +687,6 @@ ${Math.abs(t.profit).toFixed(2)}
 
 }
 
-
-
-
-
-
-
-
 function handleTradeParse(){
 
 
@@ -674,15 +703,27 @@ parseTradeText(text);
 
 
 
+const datetime =
+
+document.getElementById("trade-datetime").value;
+
+
+
+const parsed =
+
+parseTradeDateTime(datetime);
+
+
+
 trade.date =
 
-document.getElementById("trade-date").value;
+parsed.date;
 
 
 
 trade.time =
 
-document.getElementById("trade-time").value;
+parsed.time;
 
 
 
@@ -727,11 +768,109 @@ refreshCalendar();
 
 }
 
+
+
+
+
+
+function parseTradeDateTime(input){
+
+
+if(!input){
+
+
+return {
+
+date:"",
+
+time:""
+
+};
+
+
+}
+
+
+
+const parts =
+
+input.trim().split(" ");
+
+
+
+const datePart = parts[0];
+
+const timePart = parts[1] || "00:00";
+
+
+
+const dateArray =
+
+datePart.split("/");
+
+
+
+if(dateArray.length!==3){
+
+
+return {
+
+date:"",
+
+time:""
+
+};
+
+
+}
+
+
+
+const year=dateArray[0];
+
+const month=
+
+String(dateArray[1]).padStart(2,"0");
+
+
+const day=
+
+String(dateArray[2]).padStart(2,"0");
+
+
+
+return {
+
+
+date:
+
+`${year}-${month}-${day}`,
+
+
+time:
+
+timePart.substring(0,5)
+
+
+};
+
+
+
+}
+
+
+
+
+
+
+
 function renderTradeHistory(){
 
 
 const trades =
+
 getCurrentTrades();
+
 
 
 
@@ -739,6 +878,7 @@ if(!trades.length){
 
 
 return `
+
 
 <tr>
 
@@ -750,7 +890,10 @@ No trades yet
 
 </tr>
 
+
 `;
+
+
 
 }
 
@@ -760,41 +903,52 @@ No trades yet
 return `
 
 
+
 <tr>
+
 
 <th>
 ⭐
 </th>
 
+
 <th>
 Date & Time
 </th>
+
 
 <th>
 Symbol
 </th>
 
+
 <th>
 Type
 </th>
+
 
 <th>
 Profit
 </th>
 
+
 <th>
 Note
 </th>
+
 
 <th>
 Edit
 </th>
 
+
 <th>
 Delete
 </th>
 
+
 </tr>
+
 
 
 `
@@ -804,10 +958,13 @@ Delete
 trades.map(t=>`
 
 
+
 <tr>
 
 
+
 <td>
+
 
 
 <button
@@ -818,9 +975,12 @@ onclick="toggleStar('${t.id}')"
 
 >
 
+
 ${t.marked?"★":"☆"}
 
+
 </button>
+
 
 
 </td>
@@ -831,11 +991,14 @@ ${t.marked?"★":"☆"}
 
 <td>
 
+
 ${t.date}
+
 
 <br>
 
-<span class="trade-time">
+
+<span>
 
 ${t.time || "-"}
 
@@ -843,6 +1006,7 @@ ${t.time || "-"}
 
 
 </td>
+
 
 
 
@@ -888,18 +1052,15 @@ ${Math.abs(t.profit).toFixed(2)}
 
 
 
-<td
 
-class="note-column"
+<td class="note-column">
 
-title="${t.note || ""}"
-
->
 
 ${t.note || "-"}
 
 
 </td>
+
 
 
 
@@ -927,6 +1088,7 @@ onclick="editTrade('${t.id}')"
 
 
 
+
 <td>
 
 
@@ -949,6 +1111,7 @@ onclick="removeTrade('${t.id}')"
 
 
 
+
 </tr>
 
 
@@ -958,8 +1121,6 @@ onclick="removeTrade('${t.id}')"
 
 
 }
-
-
 
 
 
@@ -982,17 +1143,14 @@ refreshCalendar();
 
 
 
-
-
-
-
 function removeTrade(id){
-
 
 
 if(!confirm("Delete this trade?")){
 
+
 return;
+
 
 }
 
@@ -1006,8 +1164,6 @@ refreshCalendar();
 
 
 }
-
-
 
 
 
@@ -1040,7 +1196,6 @@ document.body.insertAdjacentHTML(
 
 "beforeend",
 
-
 `
 
 <div class="edit-modal" id="edit-modal">
@@ -1057,100 +1212,63 @@ Edit Trade
 
 
 
-
-<div class="edit-grid">
-
-<div>
-
 <label>
-Date
+
+Date & Time
+
 </label>
 
 
 <input
 
-type="date"
+id="edit-datetime"
 
-id="edit-date"
+value="${trade.date || ""} ${trade.time || ""}"
 
-value="${trade.date||""}">
-
-
-</div>
+>
 
 
 
-
-
-<div>
 
 <label>
-Time
-</label>
 
-
-<input
-
-type="time"
-
-id="edit-time"
-
-value="${trade.time||""}">
-
-
-</div>
-
-<div>
-
-<label>
 Symbol
+
 </label>
 
-<input 
+
+<input
+
 id="edit-symbol"
-value="${trade.symbol||""}">
 
+value="${trade.symbol || ""}"
 
-</div>
-
-
+>
 
 
 
-<div>
 
 <label>
+
 Type
+
 </label>
 
 
-<select id="edit-type">
+<input
+
+id="edit-type"
+
+value="${trade.type || ""}"
+
+>
 
 
-<option ${trade.type==="Long"?"selected":""}>
-Long
-</option>
-
-
-<option ${trade.type==="Short"?"selected":""}>
-Short
-</option>
-
-
-</select>
-
-
-</div>
-
-
-
-
-
-
-<div>
 
 <label>
+
 Entry Price
+
 </label>
 
 
@@ -1158,20 +1276,17 @@ Entry Price
 
 id="edit-entry"
 
-value="${trade.entry||""}">
+value="${trade.entry || ""}"
 
-
-</div>
-
-
+>
 
 
 
-
-<div>
 
 <label>
+
 Close Price
+
 </label>
 
 
@@ -1179,20 +1294,17 @@ Close Price
 
 id="edit-close"
 
-value="${trade.close||""}">
+value="${trade.close || ""}"
 
-
-</div>
-
-
+>
 
 
 
-
-<div>
 
 <label>
+
 Quantity
+
 </label>
 
 
@@ -1200,145 +1312,44 @@ Quantity
 
 id="edit-quantity"
 
-value="${trade.quantity||""}">
+value="${trade.quantity || ""}"
 
+>
 
-</div>
-
-
-
-
-
-
-<div>
 
 
 <label>
-Principal
-</label>
 
-
-<input
-
-id="edit-principal"
-
-readonly>
-
-
-</div>
-
-
-
-
-
-
-
-<div>
-
-
-<label>
-Profit
-</label>
-
-
-<input
-
-id="edit-profit"
-
-readonly>
-
-
-</div>
-
-
-
-
-
-
-<div>
-
-
-<label>
-ROI
-</label>
-
-
-<input
-
-id="edit-roi"
-
-readonly>
-
-
-</div>
-
-
-
-
-
-
-
-<div>
-
-<label>
 Emotion
+
 </label>
 
 
-<select id="edit-emotion">
+<input
 
+id="edit-emotion"
 
-<option>Neutral</option>
+value="${trade.emotion || ""}"
 
-<option>Confident</option>
-
-<option>Fear</option>
-
-<option>Greedy</option>
-
-<option>Excited</option>
-
-<option>Regret</option>
-
-
-</select>
-
-
-</div>
+>
 
 
 
-
-
-
-
-<div>
 
 <label>
+
 Decision
+
 </label>
 
 
-<select id="edit-decision">
+<input
 
+id="edit-decision"
 
-<option>Self</option>
+value="${trade.decision || ""}"
 
-<option>Trade Follow</option>
-
-
-</select>
-
-
-</div>
-
-
-
-
-</div>
-
-
-
+>
 
 
 
@@ -1352,10 +1363,9 @@ Note
 
 <textarea id="edit-note">
 
-${trade.note||""}
+${trade.note || ""}
 
 </textarea>
-
 
 
 
@@ -1387,159 +1397,11 @@ Cancel
 
 `
 
-
 );
 
 
 
-updateEditCalculation();
-
-
-
-document
-
-.querySelectorAll(
-
-"#edit-entry,#edit-close,#edit-quantity,#edit-type"
-
-)
-
-.forEach(el=>{
-
-
-el.addEventListener(
-
-"input",
-
-updateEditCalculation
-
-);
-
-
-});
-
-
 }
-
-
-
-
-
-
-
-
-
-function updateEditCalculation(){
-
-
-
-const entry =
-
-Number(
-
-document.getElementById("edit-entry").value
-
-)||0;
-
-
-
-const close =
-
-Number(
-
-document.getElementById("edit-close").value
-
-)||0;
-
-
-
-const quantity =
-
-Number(
-
-document.getElementById("edit-quantity").value
-
-)||0;
-
-
-
-const type =
-
-document.getElementById("edit-type").value;
-
-
-
-
-
-let profit=0;
-
-
-
-if(type==="Long"){
-
-
-profit=(close-entry)*quantity;
-
-
-}
-
-
-
-if(type==="Short"){
-
-
-profit=(entry-close)*quantity;
-
-
-}
-
-
-
-
-
-const principal =
-
-entry*quantity;
-
-
-
-
-const roi =
-
-principal
-
-?
-
-profit/principal*100
-
-:
-
-0;
-
-
-
-
-
-document.getElementById("edit-principal").value =
-
-principal.toFixed(2);
-
-
-
-document.getElementById("edit-profit").value =
-
-profit.toFixed(2);
-
-
-
-document.getElementById("edit-roi").value =
-
-roi.toFixed(2)+"%";
-
-
-
-}
-
 
 
 
@@ -1551,7 +1413,6 @@ roi.toFixed(2)+"%";
 function saveEditTrade(id){
 
 
-
 const trades=getTrades();
 
 
@@ -1561,15 +1422,22 @@ const trade =
 trades.find(t=>t.id===id);
 
 
-trade.date =
 
-document.getElementById("edit-date").value;
+const parsed =
+
+parseTradeDateTime(
+
+document.getElementById("edit-datetime").value
+
+);
 
 
 
-trade.time =
+trade.date = parsed.date;
 
-document.getElementById("edit-time").value;
+
+trade.time = parsed.time;
+
 
 
 trade.symbol =
@@ -1586,19 +1454,31 @@ document.getElementById("edit-type").value;
 
 trade.entry =
 
-Number(document.getElementById("edit-entry").value);
+Number(
+
+document.getElementById("edit-entry").value
+
+)||0;
 
 
 
 trade.close =
 
-Number(document.getElementById("edit-close").value);
+Number(
+
+document.getElementById("edit-close").value
+
+)||0;
 
 
 
 trade.quantity =
 
-Number(document.getElementById("edit-quantity").value);
+Number(
+
+document.getElementById("edit-quantity").value
+
+)||0;
 
 
 
@@ -1620,32 +1500,42 @@ document.getElementById("edit-note").value;
 
 
 
-
-trade.principal =
-
-trade.entry * trade.quantity;
-
-
-
 if(trade.type==="Long"){
 
+
 trade.profit =
+
 (trade.close-trade.entry)
+
 *
+
 trade.quantity;
 
+
 }
+
 
 
 if(trade.type==="Short"){
 
+
 trade.profit =
+
 (trade.entry-trade.close)
+
 *
+
 trade.quantity;
+
 
 }
 
+
+
+
+trade.principal =
+
+trade.entry * trade.quantity;
 
 
 
@@ -1656,14 +1546,10 @@ updateTrade(trade);
 closeEditModal();
 
 
-
 refreshCalendar();
 
 
-
 }
-
-
 
 
 
@@ -1682,14 +1568,14 @@ document.getElementById("edit-modal");
 
 if(modal){
 
+
 modal.remove();
 
-}
-
 
 }
 
 
+}
 
 
 
@@ -1704,10 +1590,6 @@ loadCalendar();
 
 
 }
-
-
-
-
 
 
 
@@ -1734,6 +1616,7 @@ trade.profit/trade.principal
 if(trade.profit>0){
 
 
+
 if(ratio>=0.05){
 
 return "bright-green";
@@ -1741,12 +1624,11 @@ return "bright-green";
 }
 
 
+
 return "dark-green";
 
 
 }
-
-
 
 
 
@@ -1759,6 +1641,7 @@ if(Math.abs(ratio)>0.03){
 return "bright-red";
 
 }
+
 
 
 return "dark-red";
