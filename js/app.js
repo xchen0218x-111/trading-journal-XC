@@ -13,23 +13,22 @@ Trading Journal
 
 <div class="menu">
 
-
-<div>
+<div onclick="loadDashboard()">
 📊 Dashboard
 </div>
 
 
-<div>
+<div onclick="loadCalendar()">
 📅 Calendar
 </div>
 
 
-<div>
+<div onclick="loadAnalysis()">
 📈 Analysis
 </div>
 
 
-<div>
+<div onclick="loadSetting()">
 ⚙ Setting
 </div>
 
@@ -41,19 +40,15 @@ Trading Journal
 
 
 
-<div class="content">
-
-<h1>
-Welcome to Trading Journal
-</h1>
-
-
-<p>
-Professional Trading Journal System
-</p>
-
+<div class="content" id="page">
 
 </div>
 
 
 `;
+
+
+
+// Default page
+
+loadDashboard();

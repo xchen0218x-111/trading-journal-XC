@@ -1,10 +1,10 @@
-function loadCalendar(){
+function loadSetting(){
 
 document.getElementById("page").innerHTML=
 
 `
 <h1>
-Calendar Coming Soon
+Setting Coming Soon
 </h1>
 `;
 
