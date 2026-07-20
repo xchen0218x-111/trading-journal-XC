@@ -1039,3 +1039,15 @@ grid-template-columns:1fr;
 
 
 }
+
+.chart-container{
+
+background:#111827;
+
+padding:25px;
+
+border-radius:15px;
+
+height:400px;
+
+}
