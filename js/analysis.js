@@ -5,10 +5,8 @@ const page =
 document.getElementById("page");
 
 
-
 const trades =
 getTrades();
-
 
 
 
@@ -20,9 +18,7 @@ new Date()
 
 
 const todayTrades =
-trades.filter(t=>
-t.date===today
-);
+trades.filter(t=>t.date===today);
 
 
 
@@ -35,10 +31,8 @@ const todayStats =
 calculateAnalysisStats(todayTrades);
 
 
-
 const weekStats =
 calculateAnalysisStats(weekTrades);
-
 
 
 const totalStats =
@@ -51,6 +45,7 @@ calculateAnalysisStats(trades);
 page.innerHTML = `
 
 
+
 <h1>
 Analysis
 </h1>
@@ -59,153 +54,169 @@ Analysis
 
 
 
-${createAnalysisSection(
-"Today Trading Info",
-todayStats
-)}
+<div class="analysis-panel">
+
+
+<div class="analysis-panel-title">
+
+Performance Overview
+
+</div>
 
 
 
 
-
-${createAnalysisSection(
-"This Week Trading Info",
-weekStats
-)}
-
-
-
-
-
-${createAnalysisSection(
-"Total Trading Info",
-totalStats
-)}
-
-
-${createPerformanceSection(trades)}
-
-${createTimeAnalysisSection(trades)}
-
-${createEmotionAnalysisSection(trades)}
-
-${createDecisionAnalysisSection(trades)}
-
-${createSymbolAnalysisSection(trades)}
-
-`;
-
-
-
-}
-
-
-
-
-
-
-
-
-
-function createAnalysisSection(title,stats){
-
-
-
-return `
-
-
-<div class="dashboard-section">
-
-
-<h2>
-
-${title}
-
-</h2>
-
-
-
-
-<div class="cards">
+<div class="analysis-summary">
 
 
 
 ${analysisCard(
-"Trades",
-stats.count
-)}
-
-
-
-${analysisCard(
-"Win Trades",
-stats.winCount
-)}
-
-
-
-${analysisCard(
-"Loss Trades",
-stats.lossCount
-)}
-
-
-
-${analysisCard(
-"Profit",
-stats.profit,
-stats
+"Total Profit",
+totalStats.profit,
+getProfitClass({
+profit:totalStats.profitValue,
+principal:totalStats.principal
+})
 )}
 
 
 
 ${analysisCard(
 "Win Rate",
-stats.winRate+"%"
-)}
-
-
-
-${analysisCard(
-"Average Win",
-stats.averageWin,
-stats.averageWinValue>0
+totalStats.winRate+"%",
+totalStats.winRate>=50
 ?
 "bright-green"
 :
-""
+"bright-red"
 )}
 
 
 
 ${analysisCard(
-"Average Loss",
-stats.averageLoss,
-stats.averageLossValue<0
-?
-"bright-red"
-:
-""
+"Total Trades",
+totalStats.count
 )}
 
 
 
 ${analysisCard(
 "Best Trade",
-stats.bestTrade
+totalStats.bestTrade
 )}
-
-
-
-${analysisCard(
-"Worst Trade",
-stats.worstTrade
-)}
-
 
 
 
 </div>
+
+
+</div>
+
+
+
+
+
+
+
+
+<div class="analysis-section">
+
+
+<h2>
+
+Trading Statistics
+
+</h2>
+
+
+
+<div class="analysis-grid">
+
+
+
+${createStatPanel(
+"Today",
+todayStats
+)}
+
+
+
+${createStatPanel(
+"This Week",
+weekStats
+)}
+
+
+
+${createStatPanel(
+"Total",
+totalStats
+)}
+
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+${createTimeAnalysisSection(trades)}
+
+
+
+${createEmotionAnalysisSection(trades)}
+
+
+
+${createDecisionAnalysisSection(trades)}
+
+
+
+${createSymbolAnalysisSection(trades)}
+
+
+
+${createPerformanceSection(trades)}
+
+
+
+`;
+
+
+
+}
+
+
+
+
+
+
+function analysisCard(title,value,color=""){
+
+
+return `
+
+
+<div class="card">
+
+
+<h3>
+
+${title}
+
+</h3>
+
+
+<p class="${color}">
+
+${value}
+
+</p>
 
 
 </div>
@@ -221,10 +232,79 @@ stats.worstTrade
 
 
 
+function createStatPanel(title,stats){
 
+
+
+return `
+
+
+<div class="analysis-box">
+
+
+<h3>
+
+${title}
+
+</h3>
+
+
+
+<p>
+Trades:
+${stats.count}
+</p>
+
+
+
+<p>
+Win Rate:
+${stats.winRate}%
+</p>
+
+
+
+<p class="${
+getProfitClass({
+profit:stats.profitValue,
+principal:stats.principal
+})
+}">
+
+Profit:
+${stats.profit}
+
+</p>
+
+
+
+<p>
+
+Best:
+${stats.bestTrade}
+
+</p>
+
+
+
+<p>
+
+Worst:
+${stats.worstTrade}
+
+</p>
+
+
+
+</div>
+
+
+
+`;
+
+}
 
 function calculateAnalysisStats(trades){
-
 
 
 if(!trades.length){
@@ -232,46 +312,32 @@ if(!trades.length){
 
 return {
 
-
 count:0,
 
 winCount:0,
 
 lossCount:0,
 
-
 profit:"+$0.00",
 
 profitValue:0,
 
-
 principal:0,
 
-
 winRate:0,
-
 
 averageWin:"+$0.00",
 
 averageLoss:"-$0.00",
 
-
-averageWinValue:0,
-
-averageLossValue:0,
-
-
 bestTrade:"-",
 
 worstTrade:"-"
 
-
 };
 
 
-
 }
-
 
 
 
@@ -280,11 +346,9 @@ let profit=0;
 
 let principal=0;
 
-
 let wins=[];
 
 let losses=[];
-
 
 
 let bestTrade=null;
@@ -302,17 +366,17 @@ Number(t.profit)||0;
 
 
 
-profit += p;
+profit+=p;
 
 
-principal += Number(t.principal)||0;
+principal+=Number(t.principal)||0;
+
 
 
 
 if(p>0){
 
 wins.push(p);
-
 
 }
 
@@ -322,17 +386,12 @@ if(p<0){
 
 losses.push(p);
 
-
 }
 
 
 
 
-
-if(
-!bestTrade ||
-p>bestTrade.profit
-){
+if(!bestTrade || p>bestTrade.profit){
 
 bestTrade={
 
@@ -342,17 +401,11 @@ profit:p
 
 };
 
-
 }
 
 
 
-
-
-if(
-!worstTrade ||
-p<worstTrade.profit
-){
+if(!worstTrade || p<worstTrade.profit){
 
 worstTrade={
 
@@ -362,9 +415,7 @@ profit:p
 
 };
 
-
 }
-
 
 
 
@@ -374,17 +425,13 @@ profit:p
 
 
 
-
-
-const averageWin =
+const avgWin =
 
 wins.length
 
 ?
 
-wins.reduce((a,b)=>a+b,0)
-/
-wins.length
+wins.reduce((a,b)=>a+b,0)/wins.length
 
 :
 
@@ -393,21 +440,17 @@ wins.length
 
 
 
-const averageLoss =
+const avgLoss =
 
 losses.length
 
 ?
 
-losses.reduce((a,b)=>a+b,0)
-/
-losses.length
+losses.reduce((a,b)=>a+b,0)/losses.length
 
 :
 
 0;
-
-
 
 
 
@@ -419,9 +462,7 @@ return {
 count:trades.length,
 
 
-
 winCount:wins.length,
-
 
 
 lossCount:losses.length,
@@ -439,7 +480,6 @@ Math.abs(profit).toFixed(2),
 profitValue:profit,
 
 
-
 principal:principal,
 
 
@@ -453,22 +493,13 @@ winRate:
 
 averageWin:
 
-"+$"+averageWin.toFixed(2),
+"+$"+avgWin.toFixed(2),
 
 
 
 averageLoss:
 
-"-$"+Math.abs(averageLoss).toFixed(2),
-
-
-
-averageWinValue:averageWin,
-
-
-averageLossValue:averageLoss,
-
-
+"-$"+Math.abs(avgLoss).toFixed(2),
 
 
 
@@ -478,10 +509,8 @@ bestTrade
 
 ?
 
-bestTrade.symbol
-+
-" +$"
-+
+bestTrade.symbol+
+" +$"+
 bestTrade.profit.toFixed(2)
 
 :
@@ -497,10 +526,8 @@ worstTrade
 
 ?
 
-worstTrade.symbol
-+
-" -$"
-+
+worstTrade.symbol+
+" -$"+
 Math.abs(worstTrade.profit).toFixed(2)
 
 :
@@ -523,258 +550,11 @@ Math.abs(worstTrade.profit).toFixed(2)
 
 
 
-function analysisCard(title,value,color=""){
-
-
-
-return `
-
-
-<div class="card">
-
-
-<h3>
-
-${title}
-
-</h3>
-
-
-
-<p class="${color}">
-
-${value}
-
-</p>
-
-
-
-</div>
-
-
-`;
-
-
-}
-
-
-
-
-
-
-
-
-
-function getThisWeekTradesAnalysis(trades){
-
-
-
-const now =
-new Date();
-
-
-
-const day =
-now.getDay() || 7;
-
-
-
-const monday =
-
-new Date(
-
-now.getFullYear(),
-
-now.getMonth(),
-
-now.getDate()-day+1
-
-);
-
-
-
-monday.setHours(
-0,
-0,
-0,
-0
-);
-
-
-
-
-
-return trades.filter(t=>{
-
-
-const date =
-
-new Date(
-t.date+"T00:00:00"
-);
-
-
-
-return date>=monday;
-
-
-
-});
-
-
-}
-
-function createPerformanceSection(trades){
-
-
-let balance=0;
-
-
-let points=[];
-
-
-trades
-.sort((a,b)=>
-new Date(a.date)-new Date(b.date)
-)
-.forEach((t,index)=>{
-
-
-balance += Number(t.profit)||0;
-
-
-points.push(balance);
-
-
-});
-
-
-
-const max =
-Math.max(...points,0);
-
-
-
-const win =
-trades.filter(t=>t.profit>0).length;
-
-
-
-const loss =
-trades.filter(t=>t.profit<0).length;
-
-
-
-const winPercent =
-
-trades.length
-
-?
-
-(win/trades.length)*100
-
-:
-
-0;
-
-
-
-
-return `
-
-
-<div class="analysis-grid">
-
-
-
-<div class="analysis-box">
-
-
-<h3>
-Profit Curve
-</h3>
-
-
-<div class="big-number">
-
-+$${balance.toFixed(2)}
-
-</div>
-
-
-
-<div class="chart-bar">
-
-<div
-
-class="chart-progress"
-
-style="width:${Math.min(winPercent,100)}%"
-
->
-
-</div>
-
-</div>
-
-
-</div>
-
-
-
-
-
-<div class="analysis-box">
-
-
-<h3>
-Win / Loss Distribution
-</h3>
-
-
-<p>
-
-Winning Trades:
-
-${win}
-
-</p>
-
-
-<p>
-
-Losing Trades:
-
-${loss}
-
-</p>
-
-
-<p>
-
-Win Rate:
-
-${winPercent.toFixed(1)}%
-
-</p>
-
-
-
-</div>
-
-
-
-</div>
-
-
-`;
-
-}
-
 function createTimeAnalysisSection(trades){
 
 
-const sessions = {
+
+const sessions={
 
 
 "Opening Session (9-11 AM)":[],
@@ -782,6 +562,7 @@ const sessions = {
 "Midday Session (11 AM-2 PM)":[],
 
 "Afternoon Session (2 PM-Close)":[]
+
 
 };
 
@@ -814,7 +595,6 @@ sessions["Opening Session (9-11 AM)"].push(t);
 
 }
 
-
 else if(hour>=11 && hour<14){
 
 
@@ -822,7 +602,6 @@ sessions["Midday Session (11 AM-2 PM)"].push(t);
 
 
 }
-
 
 else if(hour>=14){
 
@@ -844,11 +623,6 @@ let html="";
 
 
 
-let bestSession="";
-
-let bestProfit=-Infinity;
-
-
 
 Object.keys(sessions).forEach(name=>{
 
@@ -857,17 +631,6 @@ const stats =
 calculateAnalysisStats(
 sessions[name]
 );
-
-
-
-if(stats.profitValue>bestProfit){
-
-bestProfit=
-stats.profitValue;
-
-bestSession=name;
-
-}
 
 
 
@@ -886,40 +649,27 @@ ${name}
 
 
 <p>
-
 Trades:
 ${stats.count}
-
 </p>
 
 
-
 <p>
-
 Win Rate:
 ${stats.winRate}%
-
 </p>
 
 
 
 <p class="${
-
 getProfitClass({
-
 profit:stats.profitValue,
-
 principal:stats.principal
-
 })
-
 }">
 
-
 Profit:
-
 ${stats.profit}
-
 
 </p>
 
@@ -939,60 +689,28 @@ ${stats.profit}
 
 
 
-
-
 return `
 
 
+<div class="analysis-panel">
 
-<div class="dashboard-section">
 
+<div class="analysis-panel-title">
 
-<h2>
+Time Performance
 
-Time Performance Analysis
-
-</h2>
-
+</div>
 
 
 
 <div class="analysis-grid">
 
-
 ${html}
 
-
 </div>
 
 
-
-
-<div class="analysis-box">
-
-
-<h3>
-
-Your Best Session
-
-</h3>
-
-
-
-<div class="big-number">
-
-${bestSession || "-"}
-
 </div>
-
-
-
-</div>
-
-
-
-</div>
-
 
 
 `;
@@ -1002,7 +720,8 @@ ${bestSession || "-"}
 function createEmotionAnalysisSection(trades){
 
 
-const emotions = {};
+
+const emotions={};
 
 
 
@@ -1015,6 +734,7 @@ t.emotion || "Unknown";
 
 
 if(!emotions[emotion]){
+
 
 emotions[emotion]=[];
 
@@ -1033,6 +753,7 @@ emotions[emotion].push(t);
 
 
 let html="";
+
 
 
 
@@ -1063,7 +784,6 @@ ${emotion}
 <p>
 
 Trades:
-
 ${stats.count}
 
 </p>
@@ -1073,7 +793,6 @@ ${stats.count}
 <p>
 
 Win Rate:
-
 ${stats.winRate}%
 
 </p>
@@ -1082,45 +801,19 @@ ${stats.winRate}%
 
 <p class="${
 getProfitClass({
-
 profit:stats.profitValue,
-
 principal:stats.principal
-
 })
 }">
 
-
 Profit:
-
 ${stats.profit}
 
 </p>
 
 
 
-<p>
-
-Average Win:
-
-${stats.averageWin}
-
-</p>
-
-
-
-<p>
-
-Average Loss:
-
-${stats.averageLoss}
-
-</p>
-
-
-
 </div>
-
 
 
 `;
@@ -1133,28 +826,23 @@ ${stats.averageLoss}
 
 
 
-
-
 return `
 
 
-<div class="dashboard-section">
+<div class="analysis-panel">
 
 
-<h2>
+<div class="analysis-panel-title">
 
 Emotion Analysis
 
-</h2>
-
+</div>
 
 
 
 <div class="analysis-grid">
 
-
 ${html}
-
 
 </div>
 
@@ -1168,11 +856,15 @@ ${html}
 
 }
 
+
+
+
+
 function createDecisionAnalysisSection(trades){
 
 
 
-const decisions = {};
+const decisions={};
 
 
 
@@ -1186,6 +878,7 @@ t.decision || "Unknown";
 
 if(!decisions[decision]){
 
+
 decisions[decision]=[];
 
 }
@@ -1197,7 +890,6 @@ decisions[decision].push(t);
 
 
 });
-
 
 
 
@@ -1218,7 +910,6 @@ decisions[decision]
 
 
 
-
 html += `
 
 
@@ -1236,7 +927,6 @@ ${decision}
 <p>
 
 Trades:
-
 ${stats.count}
 
 </p>
@@ -1246,7 +936,6 @@ ${stats.count}
 <p>
 
 Win Rate:
-
 ${stats.winRate}%
 
 </p>
@@ -1255,11 +944,8 @@ ${stats.winRate}%
 
 <p class="${
 getProfitClass({
-
 profit:stats.profitValue,
-
 principal:stats.principal
-
 })
 }">
 
@@ -1267,26 +953,6 @@ principal:stats.principal
 Profit:
 
 ${stats.profit}
-
-</p>
-
-
-
-<p>
-
-Average Win:
-
-${stats.averageWin}
-
-</p>
-
-
-
-<p>
-
-Average Loss:
-
-${stats.averageLoss}
 
 </p>
 
@@ -1306,45 +972,47 @@ ${stats.averageLoss}
 
 
 
-
 return `
 
 
+<div class="analysis-panel">
 
-<div class="dashboard-section">
 
-
-<h2>
+<div class="analysis-panel-title">
 
 Decision Analysis
 
-</h2>
+</div>
 
 
 
 <div class="analysis-grid">
 
-
 ${html}
 
-
 </div>
 
 
-
 </div>
-
 
 
 `;
 
 }
 
+
+
+
+
+
+
+
+
 function createSymbolAnalysisSection(trades){
 
 
 
-const symbols = {};
+const symbols={};
 
 
 
@@ -1357,6 +1025,7 @@ t.symbol || "Unknown";
 
 
 if(!symbols[symbol]){
+
 
 symbols[symbol]=[];
 
@@ -1379,17 +1048,13 @@ let html="";
 
 
 
-
 Object.keys(symbols).forEach(symbol=>{
 
 
 const stats =
-
 calculateAnalysisStats(
 symbols[symbol]
 );
-
-
 
 
 
@@ -1429,11 +1094,8 @@ ${stats.winRate}%
 
 <p class="${
 getProfitClass({
-
 profit:stats.profitValue,
-
 principal:stats.principal
-
 })
 }">
 
@@ -1446,27 +1108,8 @@ ${stats.profit}
 
 
 
-<p>
-
-Average Win:
-
-${stats.averageWin}
-
-</p>
-
-
-
-<p>
-
-Average Loss:
-
-${stats.averageLoss}
-
-</p>
-
-
-
 </div>
+
 
 
 `;
@@ -1484,21 +1127,203 @@ return `
 
 
 
-<div class="dashboard-section">
+<div class="analysis-panel">
 
 
-<h2>
+<div class="analysis-panel-title">
 
 Symbol Performance
 
-</h2>
+</div>
+
+
+
+<div class="analysis-grid">
+
+${html}
+
+</div>
+
+
+
+</div>
+
+
+
+`;
+
+}
+
+function createPerformanceSection(trades){
+
+
+const sorted =
+[...trades].sort(
+(a,b)=>
+new Date(a.date+" "+a.time)
+-
+new Date(b.date+" "+b.time)
+);
+
+
+
+let cumulative=0;
+
+
+let points=[];
+
+
+sorted.forEach((t,index)=>{
+
+
+cumulative += Number(t.profit)||0;
+
+
+
+points.push({
+
+trade:index+1,
+
+profit:cumulative
+
+});
+
+
+});
+
+
+
+
+
+let html="";
+
+
+
+points.slice(-10).forEach(p=>{
+
+
+html += `
+
+<p>
+
+Trade ${p.trade}
+
+:
+${
+p.profit>=0?"+$":"-$"
+}
+
+${Math.abs(p.profit).toFixed(2)}
+
+</p>
+
+`;
+
+
+
+});
+
+
+
+
+
+const stats =
+calculateAnalysisStats(trades);
+
+
+
+
+
+return `
+
+
+
+<div class="analysis-panel">
+
+
+<div class="analysis-panel-title">
+
+Performance Analysis
+
+</div>
+
 
 
 
 <div class="analysis-grid">
 
 
-${html}
+
+<div class="analysis-box">
+
+
+<h3>
+
+Win / Loss
+
+</h3>
+
+
+
+<p>
+
+Winning Trades:
+
+${stats.winCount}
+
+</p>
+
+
+
+<p>
+
+Losing Trades:
+
+${stats.lossCount}
+
+</p>
+
+
+
+<p>
+
+Win Rate:
+
+${stats.winRate}%
+
+</p>
+
+
+
+</div>
+
+
+
+
+
+<div class="analysis-box">
+
+
+<h3>
+
+Profit Curve (Last Trades)
+
+</h3>
+
+
+
+${
+
+html ||
+
+"<p>No data</p>"
+
+}
+
+
+
+</div>
+
 
 
 </div>
@@ -1510,5 +1335,65 @@ ${html}
 
 
 `;
+
+}
+
+
+
+
+
+function getThisWeekTradesAnalysis(trades){
+
+
+
+const now =
+new Date();
+
+
+
+const day =
+now.getDay() || 7;
+
+
+
+const monday =
+new Date(
+
+now.getFullYear(),
+
+now.getMonth(),
+
+now.getDate()-day+1
+
+);
+
+
+
+monday.setHours(
+0,
+0,
+0,
+0
+);
+
+
+
+return trades.filter(t=>{
+
+
+const date =
+new Date(
+t.date+"T00:00:00"
+);
+
+
+
+return date>=monday;
+
+
+
+});
+
+
 
 }
