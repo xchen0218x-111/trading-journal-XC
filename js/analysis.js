@@ -180,6 +180,12 @@ createEquityChart(trades);
 createWinLossChart(trades);
 
 
+createSessionProfitChart(trades);
+
+
+createSessionWinRateChart(trades);
+
+
 },100);
 
 
@@ -531,140 +537,7 @@ Performance Charts
 
 }
 
-
-
-
-
-
 function createTimeAnalysisSection(trades){
-
-
-const sessions={
-
-
-"Opening 9-11 AM":[],
-
-"Midday 11-2 PM":[],
-
-"Afternoon 2 PM-Close":[]
-
-
-};
-
-
-
-trades.forEach(t=>{
-
-
-if(!t.time){
-
-return;
-
-}
-
-
-const hour =
-Number(
-t.time.split(":")[0]
-);
-
-
-
-if(hour>=9 && hour<11){
-
-sessions["Opening 9-11 AM"].push(t);
-
-}
-
-else if(hour>=11 && hour<14){
-
-sessions["Midday 11-2 PM"].push(t);
-
-}
-
-else if(hour>=14){
-
-sessions["Afternoon 2 PM-Close"].push(t);
-
-}
-
-
-});
-
-
-
-
-
-let html="";
-
-
-
-Object.keys(sessions)
-.forEach(name=>{
-
-
-const stats =
-calculateAnalysisStats(
-sessions[name]
-);
-
-
-
-html += `
-
-
-<div class="analysis-box">
-
-
-<h3>
-
-${name}
-
-</h3>
-
-
-<p>
-
-Trades:
-${stats.count}
-
-</p>
-
-
-<p>
-
-Win Rate:
-${stats.winRate}%
-
-</p>
-
-
-<p class="${
-getProfitClass({
-profit:stats.profitValue,
-principal:stats.principal
-})
-}">
-
-Profit:
-
-${stats.profit}
-
-</p>
-
-
-</div>
-
-
-
-`;
-
-
-
-});
-
-
-
 
 
 return `
@@ -684,11 +557,23 @@ Time Performance
 <div class="analysis-grid">
 
 
-${html}
+<div class="chart-container">
 
+<canvas id="sessionProfitChart"></canvas>
 
 </div>
 
+
+
+<div class="chart-container">
+
+<canvas id="sessionWinRateChart"></canvas>
+
+</div>
+
+
+
+</div>
 
 
 </div>
@@ -1408,6 +1293,349 @@ return d>=monday;
 
 
 });
+
+
+
+}
+
+function getTradingSessions(trades){
+
+
+const sessions={
+
+
+"Opening 9-11":[],
+
+"Midday 11-2":[],
+
+"Afternoon 2-Close":[]
+
+
+};
+
+
+
+trades.forEach(t=>{
+
+
+if(!t.time){
+
+return;
+
+}
+
+
+
+const hour =
+Number(
+t.time.split(":")[0]
+);
+
+
+
+if(hour>=9 && hour<11){
+
+
+sessions["Opening 9-11"].push(t);
+
+
+}
+else if(hour>=11 && hour<14){
+
+
+sessions["Midday 11-2"].push(t);
+
+
+}
+else if(hour>=14){
+
+
+sessions["Afternoon 2-Close"].push(t);
+
+
+}
+
+
+});
+
+
+
+return sessions;
+
+
+}
+
+
+
+
+
+
+let sessionProfitChart=null;
+
+
+function createSessionProfitChart(trades){
+
+
+
+const sessions =
+getTradingSessions(trades);
+
+
+
+const labels =
+Object.keys(sessions);
+
+
+
+const values =
+labels.map(label=>{
+
+
+return sessions[label]
+.reduce(
+(sum,t)=>
+sum+(Number(t.profit)||0),
+0
+);
+
+
+});
+
+
+
+
+
+const ctx =
+document.getElementById(
+"sessionProfitChart"
+);
+
+
+
+if(!ctx){
+
+return;
+
+}
+
+
+
+if(sessionProfitChart){
+
+sessionProfitChart.destroy();
+
+}
+
+
+
+sessionProfitChart =
+new Chart(
+ctx,
+{
+
+
+type:"bar",
+
+
+
+data:{
+
+
+labels:labels,
+
+
+datasets:[{
+
+label:"Profit",
+
+data:values
+
+}]
+
+
+},
+
+
+
+options:{
+
+
+responsive:true,
+
+
+plugins:{
+
+
+legend:{
+
+
+display:false
+
+
+}
+
+
+}
+
+
+}
+
+
+
+}
+
+);
+
+
+
+}
+
+
+
+
+
+
+
+
+
+let sessionWinRateChart=null;
+
+
+
+function createSessionWinRateChart(trades){
+
+
+
+const sessions =
+getTradingSessions(trades);
+
+
+
+const labels =
+Object.keys(sessions);
+
+
+
+const values =
+labels.map(label=>{
+
+
+const list =
+sessions[label];
+
+
+if(!list.length){
+
+return 0;
+
+}
+
+
+
+const wins =
+list.filter(
+t=>Number(t.profit)>0
+)
+.length;
+
+
+
+return Number(
+(
+wins/list.length*100
+)
+.toFixed(1)
+);
+
+
+
+});
+
+
+
+
+
+const ctx =
+document.getElementById(
+"sessionWinRateChart"
+);
+
+
+
+if(!ctx){
+
+return;
+
+}
+
+
+
+if(sessionWinRateChart){
+
+sessionWinRateChart.destroy();
+
+}
+
+
+
+sessionWinRateChart =
+new Chart(
+ctx,
+{
+
+
+type:"bar",
+
+
+
+data:{
+
+
+labels:labels,
+
+
+datasets:[{
+
+label:"Win Rate %",
+
+data:values
+
+}]
+
+
+},
+
+
+
+options:{
+
+
+responsive:true,
+
+
+plugins:{
+
+
+legend:{
+
+
+display:false
+
+
+}
+
+
+}
+
+
+
+}
+
+
+
+}
+
+);
 
 
 

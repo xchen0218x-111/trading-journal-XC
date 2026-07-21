@@ -1,7 +1,219 @@
+// =================================================
+// Calendar V2 Final
+// Part 1/3
+// Calendar Engine + Month + Grid + Week Summary
+// =================================================
+
+
+// ================================
+// State
+// ================================
+
+
 let selectedDay = null;
 
 let currentAssetType = "Stock";
 
+
+let currentYear = 2026;
+
+let currentMonth = 6; 
+// JS month
+// July = 6
+
+
+
+const monthNames = [
+
+"January",
+"February",
+"March",
+"April",
+"May",
+"June",
+"July",
+"August",
+"September",
+"October",
+"November",
+"December"
+
+];
+
+
+
+
+// ================================
+// Month Engine
+// ================================
+
+
+
+function getMonthName(){
+
+    return monthNames[currentMonth];
+
+}
+
+
+
+
+
+function getDaysInMonth(){
+
+
+    return new Date(
+        currentYear,
+        currentMonth + 1,
+        0
+    ).getDate();
+
+
+}
+
+
+
+
+
+function getFirstDay(){
+
+
+    let day = new Date(
+
+        currentYear,
+        currentMonth,
+        1
+
+    ).getDay();
+
+
+
+    // Sunday 0
+    // Monday 1
+
+
+    return day === 0 ? 6 : day - 1;
+
+
+}
+
+
+
+
+
+
+
+function prevMonth(){
+
+
+    currentMonth--;
+
+
+
+    if(currentMonth < 0){
+
+
+        currentMonth = 11;
+
+        currentYear--;
+
+
+    }
+
+
+
+    selectedDay = null;
+
+
+    refreshCalendar();
+
+
+}
+
+
+
+
+
+
+
+function nextMonth(){
+
+
+    currentMonth++;
+
+
+
+    if(currentMonth > 11){
+
+
+        currentMonth = 0;
+
+        currentYear++;
+
+
+    }
+
+
+
+    selectedDay = null;
+
+
+    refreshCalendar();
+
+
+}
+
+
+
+
+
+
+// ================================
+// Asset
+// ================================
+
+
+function changeAssetType(type){
+
+
+    currentAssetType = type;
+
+
+    selectedDay = null;
+
+
+    refreshCalendar();
+
+
+}
+
+
+
+
+
+
+function getCurrentTrades(){
+
+
+    return getTrades()
+
+    .filter(t =>
+
+        t.assetType === currentAssetType
+
+    );
+
+
+}
+
+
+
+
+
+
+// ================================
+// Load Calendar
+// ================================
 
 
 
@@ -9,11 +221,13 @@ function loadCalendar(){
 
 
 const page =
+
 document.getElementById("page");
 
 
 
 page.innerHTML = `
+
 
 
 <h1>
@@ -26,32 +240,51 @@ Calendar
 <div class="calendar-toolbar">
 
 
-<button 
+<button
+
 onclick="changeAssetType('Stock')"
-class="${currentAssetType==="Stock"?"active":""}">
+
+class="${currentAssetType==="Stock"?"active":""}"
+
+>
+
 Stock
+
 </button>
 
 
 
-<button 
+
+<button
+
 onclick="changeAssetType('Future')"
-class="${currentAssetType==="Future"?"active":""}">
+
+class="${currentAssetType==="Future"?"active":""}"
+
+>
+
 Future
+
 </button>
 
 
 
 
-<button 
+<button
+
 onclick="changeAssetType('ETF')"
-class="${currentAssetType==="ETF"?"active":""}">
+
+class="${currentAssetType==="ETF"?"active":""}"
+
+>
+
 ETF
+
 </button>
+
 
 
 </div>
-
 
 
 
@@ -60,24 +293,66 @@ ETF
 <div class="calendar-container">
 
 
-<h2>
-July 2026
+
+<div class="month-navigation">
+
+
+<button onclick="prevMonth()">
+
+◀
+
+</button>
+
+
+
+<h2 id="calendar-title">
+
+${getMonthName()} ${currentYear}
+
 </h2>
+
+
+
+
+<button onclick="nextMonth()">
+
+▶
+
+</button>
+
+
+
+</div>
+
+
 
 
 
 
 <div class="weekdays">
 
+
 <div>Mon</div>
+
 <div>Tue</div>
+
 <div>Wed</div>
+
 <div>Thu</div>
+
 <div>Fri</div>
+
 <div>Sat</div>
+
 <div>Sun</div>
 
+<div>
+Week
 </div>
+
+
+</div>
+
 
 
 
@@ -85,9 +360,13 @@ July 2026
 
 <div class="calendar-grid">
 
+
 ${generateCalendarDays()}
 
+
 </div>
+
+
 
 
 
@@ -95,8 +374,8 @@ ${generateCalendarDays()}
 
 
 
-</div>
 
+</div>
 
 
 
@@ -107,17 +386,15 @@ ${generateCalendarDays()}
 <div class="trade-area">
 
 
-
-
-
 <div class="add-trade">
 
 
+
 <h2>
+
 Add Trade
+
 </h2>
-
-
 
 
 
@@ -141,11 +418,10 @@ placeholder="2026/7/20 15:01:30"
 
 
 
-
-
-
 <label>
+
 Asset Type
+
 </label>
 
 
@@ -166,10 +442,10 @@ Asset Type
 
 
 
-
-
 <label>
+
 Trade Text
+
 </label>
 
 
@@ -186,13 +462,11 @@ placeholder="Paste your trade description here"
 
 
 
-
-
-
 <label>
-Emotion
-</label>
 
+Emotion
+
+</label>
 
 
 <select id="emotion">
@@ -217,13 +491,11 @@ Emotion
 
 
 
-
-
-
 <label>
-Decision Type
-</label>
 
+Decision Type
+
+</label>
 
 
 <select id="decision">
@@ -240,18 +512,14 @@ Decision Type
 
 
 
-
-
 <label>
+
 Note
+
 </label>
 
 
-
 <textarea id="trade-note"></textarea>
-
-
-
 
 
 
@@ -269,12 +537,7 @@ Parse Trade
 
 
 
-
 </div>
-
-
-
-
 
 
 
@@ -284,10 +547,10 @@ Parse Trade
 
 
 <h2>
+
 Trade History
+
 </h2>
-
-
 
 
 
@@ -306,10 +569,8 @@ ${renderTradeHistory()}
 </table>
 
 
+
 </div>
-
-
-
 
 
 
@@ -327,56 +588,84 @@ ${renderTradeHistory()}
 
 
 
-function changeAssetType(type){
 
-
-currentAssetType = type;
-
-
-loadCalendar();
-
-
-}
-
-
-
-
-
-function getCurrentTrades(){
-
-
-return getTrades()
-
-.filter(t=>
-
-t.assetType===currentAssetType
-
-);
-
-
-}
-
-
-
+// ================================
+// Calendar Grid
+// ================================
 
 
 
 function generateCalendarDays(){
 
 
-let html="";
+
+let html = "";
 
 
 
-for(let i=1;i<=31;i++){
+const emptyDays = getFirstDay();
 
 
-html += `
+const totalDays = getDaysInMonth();
 
 
-<div class="day"
 
-onclick="selectDay(${i},this)"
+
+let weekDays = [];
+
+
+
+
+// empty cells
+
+for(let i=0;i<emptyDays;i++){
+
+
+    html += `
+
+    <div class="day empty"></div>
+
+    `;
+
+
+    weekDays.push(null);
+
+
+}
+
+
+
+
+
+
+for(let day=1; day<=totalDays; day++){
+
+
+
+    const today = new Date();
+
+
+
+    const isToday =
+
+    today.getFullYear() === currentYear &&
+
+    today.getMonth() === currentMonth &&
+
+    today.getDate() === day;
+
+
+
+
+
+    html += `
+
+
+<div
+
+class="day ${isToday?"today":""}"
+
+onclick="selectDay(${day},this)"
 
 >
 
@@ -384,27 +673,104 @@ onclick="selectDay(${i},this)"
 
 <span>
 
-${i}
+${day}
 
 </span>
 
 
 
+<div class="daily-profit ${getDailyProfitClass(day)}">
 
-<p class="${getDailyProfitClass(i)}">
+${getDailyProfit(day)}
 
-${getDailyProfit(i)}
+</div>
 
-</p>
+
+<div class="trade-count">
+
+${getDailyTradeCount(day)}
+
+</div>
 
 
 
 </div>
 
 
+
 `;
 
+
+
+weekDays.push(day);
+
+
+
+
+
+
+if(weekDays.length === 7){
+
+
+
+    html += renderWeekSummary(
+
+        weekDays.filter(Boolean)
+
+    );
+
+
+
+    weekDays=[];
+
+
+
 }
+
+
+
+}
+
+
+
+
+
+
+// remaining week
+
+
+if(weekDays.length>0){
+
+
+
+while(weekDays.length<7){
+
+
+    html += `
+
+    <div class="day empty"></div>
+
+    `;
+
+
+    weekDays.push(null);
+
+
+}
+
+
+
+
+html += renderWeekSummary(
+
+weekDays.filter(Boolean)
+
+);
+
+
+
+}
+
 
 
 return html;
@@ -413,15 +779,23 @@ return html;
 }
 
 
+// =================================================
+// Calendar V2 Final
+// Part 2/3
+// Week Summary + Day Detail + Trade Input
+// =================================================
 
 
 
+// ================================
+// Weekly Summary
+// ================================
 
 
-function getDailyProfit(day){
+function calculateWeekStats(days){
 
 
-let profit=0;
+let trades = [];
 
 
 
@@ -430,17 +804,255 @@ getCurrentTrades()
 .forEach(t=>{
 
 
+if(!t.date){
+
+return;
+
+}
+
+
+
+const parts = t.date.split("-");
+
+
+const year = Number(parts[0]);
+
+const month = Number(parts[1]) - 1;
+
+const day = Number(parts[2]);
+
+
+
 if(
 
-t.date &&
+year === currentYear &&
 
-t.date.endsWith(
+month === currentMonth &&
 
-"-"+String(day).padStart(2,"0")
+days.includes(day)
+
+){
+
+
+trades.push(t);
+
+
+}
+
+
+
+});
+
+
+
+
+
+let profit = 0;
+
+let wins = 0;
+
+
+
+trades.forEach(t=>{
+
+
+profit += Number(t.profit)||0;
+
+
+
+if(Number(t.profit)>0){
+
+wins++;
+
+}
+
+
+});
+
+
+
+
+
+
+return {
+
+
+trades:
+
+trades.length,
+
+
+
+profit,
+
+
+
+winRate:
+
+trades.length
+
+?
+
+Math.round(
+
+wins / trades.length * 100
 
 )
 
-){
+:
+
+0
+
+
+};
+
+
+
+}
+
+
+
+
+
+function renderWeekSummary(days){
+
+
+
+const stats =
+
+calculateWeekStats(days);
+
+
+
+
+
+return `
+
+
+
+<div class="week-summary">
+
+
+<b>
+
+Week Summary
+
+</b>
+
+
+
+<div>
+
+Trades:
+
+${stats.trades}
+
+</div>
+
+
+
+
+<div class="${
+
+stats.profit>=0
+
+?
+
+"dark-green"
+
+:
+
+"dark-red"
+
+}">
+
+
+Profit:
+
+${
+
+stats.profit>=0
+
+?
+
+"+$"
+
+:
+
+"-$"
+
+}
+
+${Math.abs(stats.profit).toFixed(2)}
+
+
+
+</div>
+
+
+
+
+
+<div>
+
+
+Win:
+
+${stats.winRate}%
+
+
+</div>
+
+
+
+</div>
+
+
+
+`;
+
+
+
+}
+
+
+
+
+
+
+
+// ================================
+// Daily Profit
+// ================================
+
+
+
+function getDailyProfit(day){
+
+
+
+let profit = 0;
+
+
+
+const date =
+
+`${currentYear}-${
+
+String(currentMonth+1).padStart(2,"0")
+
+}-${
+String(day).padStart(2,"0")
+}`;
+
+
+
+getCurrentTrades()
+
+.forEach(t=>{
+
+
+if(t.date === date){
 
 
 profit += Number(t.profit)||0;
@@ -449,7 +1061,9 @@ profit += Number(t.profit)||0;
 }
 
 
+
 });
+
 
 
 
@@ -462,10 +1076,17 @@ return "";
 
 
 
-
 return (
 
-profit>0?"+$":"-$"
+profit>0
+
+?
+
+"+$"
+
+:
+
+"-$"
 
 )
 
@@ -483,24 +1104,29 @@ Math.abs(profit).toFixed(2);
 
 
 
+
 function getDailyProfitClass(day){
+
+
+
+const date =
+
+`${currentYear}-${
+
+String(currentMonth+1).padStart(2,"0")
+
+}-${
+String(day).padStart(2,"0")
+}`;
+
 
 
 const trades =
 
 getCurrentTrades()
 
-.filter(t=>
+.filter(t=>t.date===date);
 
-t.date &&
-
-t.date.endsWith(
-
-"-"+String(day).padStart(2,"0")
-
-)
-
-);
 
 
 
@@ -510,6 +1136,8 @@ if(!trades.length){
 return "";
 
 }
+
+
 
 
 
@@ -533,6 +1161,7 @@ principal += Number(t.principal)||0;
 
 
 
+
 return getProfitClass({
 
 profit,
@@ -542,10 +1171,54 @@ principal
 });
 
 
+
+}
+
+
+// ================================
+// Daily Trade Count
+// ================================
+
+function getDailyTradeCount(day){
+
+
+const date =
+
+`${currentYear}-${
+
+String(currentMonth+1).padStart(2,"0")
+
+}-${
+String(day).padStart(2,"0")
+}`;
+
+
+
+const count =
+
+getCurrentTrades()
+
+.filter(t=>
+
+t.date === date
+
+).length;
+
+
+
+return count ? count : "";
+
+
 }
 
 
 
+
+
+
+// ================================
+// Day Select
+// ================================
 
 
 function selectDay(day,element){
@@ -555,9 +1228,7 @@ if(selectedDay===day){
 
 
 document
-
 .getElementById("day-details")
-
 .innerHTML="";
 
 
@@ -596,6 +1267,19 @@ selectedDay=day;
 
 
 
+const date =
+
+`${currentYear}-${
+
+String(currentMonth+1).padStart(2,"0")
+
+}-${
+String(day).padStart(2,"0")
+}`;
+
+
+
+
 
 const trades =
 
@@ -603,13 +1287,7 @@ getCurrentTrades()
 
 .filter(t=>
 
-t.date &&
-
-t.date.endsWith(
-
-"-"+String(day).padStart(2,"0")
-
-)
+t.date===date
 
 );
 
@@ -617,7 +1295,54 @@ t.date.endsWith(
 
 
 
-document.getElementById("day-details").innerHTML = `
+
+let totalProfit = 0;
+
+let wins = 0;
+
+
+trades.forEach(t=>{
+
+
+totalProfit += Number(t.profit)||0;
+
+
+if(Number(t.profit)>0){
+
+wins++;
+
+}
+
+
+});
+
+
+
+const winRate =
+
+trades.length
+
+?
+
+Math.round(
+wins/trades.length*100
+)
+
+:
+
+0;
+
+
+
+
+
+
+document
+
+.getElementById("day-details")
+
+.innerHTML = `
+
 
 
 <div class="day-info">
@@ -625,38 +1350,147 @@ document.getElementById("day-details").innerHTML = `
 
 <h2>
 
-July ${day}, 2026
+${getMonthName()}
+
+${day},
+
+${currentYear}
 
 </h2>
 
 
 
 
-${
-trades.length
+
+
+<div class="day-summary">
+
+
+<b>
+
+${trades.length}
+
+Trades
+
+</b>
+
+
+
+<span class="${
+
+totalProfit>=0
 
 ?
 
-trades.map(t=>`
+"dark-green"
+
+:
+
+"dark-red"
+
+}">
 
 
-<div class="info-card">
+${
+
+totalProfit>=0
+
+?
+
+"+$"
+
+:
+
+"-$"
+
+}
+
+${Math.abs(totalProfit).toFixed(2)}
 
 
-<b>${t.symbol}</b>
+</span>
 
 
-<br>
+
+<span>
+
+Win ${winRate}%
+
+</span>
 
 
-${t.type}
 
+</div>
+
+
+
+
+
+
+
+<div class="trade-list">
+
+
+
+${
+
+
+trades.length
+
+
+?
+
+
+trades.map((t,index)=>`
+
+
+
+<div class="mini-trade">
+
+
+
+<div>
+
+
+<b>
+
+${index+1}. ${t.symbol || "-"}
+
+</b>
+
+
+<span>
+
+${t.type || "-"}
+
+</span>
+
+
+</div>
+
+
+
+
+
+<div>
 
 
 <span class="${getProfitClass(t)}">
 
 
-${t.profit>=0?"+$":"-$"}
+${
+
+t.profit>=0
+
+?
+
+"+$"
+
+:
+
+"-$"
+
+}
 
 ${Math.abs(t.profit).toFixed(2)}
 
@@ -667,14 +1501,30 @@ ${Math.abs(t.profit).toFixed(2)}
 </div>
 
 
+
+
+</div>
+
+
+
 `).join("")
+
 
 
 :
 
+
 "<p>No trades</p>"
 
+
 }
+
+
+
+</div>
+
+
+
 
 
 
@@ -687,7 +1537,20 @@ ${Math.abs(t.profit).toFixed(2)}
 
 }
 
+
+
+
+
+
+
+// ================================
+// Add Trade
+// ================================
+
+
+
 function handleTradeParse(){
+
 
 
 const text =
@@ -699,6 +1562,7 @@ document.getElementById("trade-text").value;
 const trade =
 
 parseTradeText(text);
+
 
 
 
@@ -715,15 +1579,13 @@ parseTradeDateTime(datetime);
 
 
 
-trade.date =
-
-parsed.date;
 
 
+trade.date = parsed.date;
 
-trade.time =
 
-parsed.time;
+trade.time = parsed.time;
+
 
 
 
@@ -755,7 +1617,11 @@ trade.marked=false;
 
 
 
+
+
 saveTrade(trade);
+
+
 
 
 
@@ -766,6 +1632,7 @@ alert("Trade Saved");
 refreshCalendar();
 
 
+
 }
 
 
@@ -773,7 +1640,16 @@ refreshCalendar();
 
 
 
+
+
+// ================================
+// Date Parser
+// ================================
+
+
+
 function parseTradeDateTime(input){
+
 
 
 if(!input){
@@ -792,9 +1668,13 @@ time:""
 
 
 
+
+
 const parts =
 
 input.trim().split(" ");
+
+
 
 
 
@@ -804,13 +1684,18 @@ const timePart = parts[1] || "00:00";
 
 
 
-const dateArray =
+
+
+const arr =
 
 datePart.split("/");
 
 
 
-if(dateArray.length!==3){
+
+
+if(arr.length!==3){
+
 
 
 return {
@@ -826,17 +1711,6 @@ time:""
 
 
 
-const year=dateArray[0];
-
-const month=
-
-String(dateArray[1]).padStart(2,"0");
-
-
-const day=
-
-String(dateArray[2]).padStart(2,"0");
-
 
 
 return {
@@ -844,12 +1718,20 @@ return {
 
 date:
 
-`${year}-${month}-${day}`,
+`${arr[0]}-${
+
+String(arr[1]).padStart(2,"0")
+
+}-${
+String(arr[2]).padStart(2,"0")
+}`,
+
 
 
 time:
 
 timePart.substring(0,5)
+
 
 
 };
@@ -858,18 +1740,24 @@ timePart.substring(0,5)
 
 }
 
+// =================================================
+// Calendar V2 Final
+// Part 3/3
+// History + Edit + Delete + Utility
+// =================================================
 
 
 
 
+// ================================
+// Trade History
+// ================================
 
 
 function renderTradeHistory(){
 
 
-const trades =
-
-getCurrentTrades();
+const trades = getCurrentTrades();
 
 
 
@@ -900,12 +1788,11 @@ No trades yet
 
 
 
+
 return `
 
 
-
 <tr>
-
 
 <th>
 ⭐
@@ -966,7 +1853,6 @@ trades.map(t=>`
 <td>
 
 
-
 <button
 
 class="star-btn ${t.marked?"marked":""}"
@@ -988,7 +1874,6 @@ ${t.marked?"★":"☆"}
 
 
 
-
 <td>
 
 
@@ -1005,8 +1890,8 @@ ${t.time || "-"}
 </span>
 
 
-</td>
 
+</td>
 
 
 
@@ -1017,7 +1902,6 @@ ${t.time || "-"}
 ${t.symbol || "-"}
 
 </td>
-
 
 
 
@@ -1038,16 +1922,30 @@ ${t.type || "-"}
 <span class="${getProfitClass(t)}">
 
 
-${t.profit>=0?"+$":"-$"}
+${
+
+t.profit>=0
+
+?
+
+"+$"
+
+:
+
+"-$"
+
+}
+
 
 ${Math.abs(t.profit).toFixed(2)}
+
 
 
 </span>
 
 
-</td>
 
+</td>
 
 
 
@@ -1089,6 +1987,7 @@ onclick="editTrade('${t.id}')"
 
 
 
+
 <td>
 
 
@@ -1111,7 +2010,6 @@ onclick="removeTrade('${t.id}')"
 
 
 
-
 </tr>
 
 
@@ -1128,6 +2026,12 @@ onclick="removeTrade('${t.id}')"
 
 
 
+// ================================
+// Star
+// ================================
+
+
+
 function toggleStar(id){
 
 
@@ -1141,6 +2045,13 @@ refreshCalendar();
 
 
 
+
+
+
+
+// ================================
+// Delete
+// ================================
 
 
 function removeTrade(id){
@@ -1171,7 +2082,16 @@ refreshCalendar();
 
 
 
+
+
+// ================================
+// Edit
+// ================================
+
+
+
 function editTrade(id){
+
 
 
 const trade =
@@ -1179,6 +2099,7 @@ const trade =
 getTrades()
 
 .find(t=>t.id===id);
+
 
 
 
@@ -1196,7 +2117,9 @@ document.body.insertAdjacentHTML(
 
 "beforeend",
 
+
 `
+
 
 <div class="edit-modal" id="edit-modal">
 
@@ -1226,6 +2149,7 @@ id="edit-datetime"
 value="${trade.date || ""} ${trade.time || ""}"
 
 >
+
 
 
 
@@ -1265,6 +2189,8 @@ value="${trade.type || ""}"
 
 
 
+
+
 <label>
 
 Entry Price
@@ -1301,6 +2227,7 @@ value="${trade.close || ""}"
 
 
 
+
 <label>
 
 Quantity
@@ -1315,6 +2242,8 @@ id="edit-quantity"
 value="${trade.quantity || ""}"
 
 >
+
+
 
 
 
@@ -1371,7 +2300,12 @@ ${trade.note || ""}
 
 
 
-<button onclick="saveEditTrade('${trade.id}')">
+
+<button
+
+onclick="saveEditTrade('${trade.id}')"
+
+>
 
 Save
 
@@ -1380,7 +2314,11 @@ Save
 
 
 
-<button onclick="closeEditModal()">
+<button
+
+onclick="closeEditModal()"
+
+>
 
 Cancel
 
@@ -1389,13 +2327,17 @@ Cancel
 
 
 
+
 </div>
 
 
 </div>
+
 
 
 `
+
+
 
 );
 
@@ -1410,7 +2352,9 @@ Cancel
 
 
 
+
 function saveEditTrade(id){
+
 
 
 const trades=getTrades();
@@ -1420,6 +2364,19 @@ const trades=getTrades();
 const trade =
 
 trades.find(t=>t.id===id);
+
+
+
+
+
+if(!trade){
+
+return;
+
+}
+
+
+
 
 
 
@@ -1435,8 +2392,9 @@ document.getElementById("edit-datetime").value
 
 trade.date = parsed.date;
 
-
 trade.time = parsed.time;
+
+
 
 
 
@@ -1449,6 +2407,7 @@ document.getElementById("edit-symbol").value;
 trade.type =
 
 document.getElementById("edit-type").value;
+
 
 
 
@@ -1500,6 +2459,10 @@ document.getElementById("edit-note").value;
 
 
 
+
+
+
+
 if(trade.type==="Long"){
 
 
@@ -1513,6 +2476,7 @@ trade.quantity;
 
 
 }
+
 
 
 
@@ -1535,7 +2499,11 @@ trade.quantity;
 
 trade.principal =
 
-trade.entry * trade.quantity;
+trade.entry *
+
+trade.quantity;
+
+
 
 
 
@@ -1546,10 +2514,14 @@ updateTrade(trade);
 closeEditModal();
 
 
+
 refreshCalendar();
 
 
+
 }
+
+
 
 
 
@@ -1560,6 +2532,7 @@ refreshCalendar();
 function closeEditModal(){
 
 
+
 const modal =
 
 document.getElementById("edit-modal");
@@ -1568,10 +2541,8 @@ document.getElementById("edit-modal");
 
 if(modal){
 
-
 modal.remove();
 
-
 }
 
 
@@ -1580,6 +2551,14 @@ modal.remove();
 
 
 
+
+
+
+
+
+// ================================
+// Refresh
+// ================================
 
 
 
@@ -1595,6 +2574,15 @@ loadCalendar();
 
 
 
+
+
+
+// ================================
+// Profit Color
+// ================================
+
+
+
 function getProfitClass(trade){
 
 
@@ -1605,11 +2593,13 @@ trade.principal
 
 ?
 
-trade.profit/trade.principal
+trade.profit / trade.principal
 
 :
 
 0;
+
+
 
 
 
@@ -1619,7 +2609,9 @@ if(trade.profit>0){
 
 if(ratio>=0.05){
 
+
 return "bright-green";
+
 
 }
 
@@ -1628,7 +2620,11 @@ return "bright-green";
 return "dark-green";
 
 
+
 }
+
+
+
 
 
 
@@ -1638,7 +2634,9 @@ if(trade.profit<0){
 
 if(Math.abs(ratio)>0.03){
 
+
 return "bright-red";
+
 
 }
 
@@ -1651,7 +2649,11 @@ return "dark-red";
 
 
 
+
+
+
 return "";
+
 
 
 }
