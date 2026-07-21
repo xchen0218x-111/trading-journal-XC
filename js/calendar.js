@@ -1616,20 +1616,18 @@ document.getElementById("trade-note").value;
 trade.marked=false;
 
 
-
-
-
 saveTrade(trade);
-
-
-
 
 
 alert("Trade Saved");
 
 
-
 refreshCalendar();
+
+
+if(typeof loadDashboard === "function"){
+    loadDashboard();
+}
 
 
 
