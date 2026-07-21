@@ -13,6 +13,7 @@ getTrades();
 const now = new Date();
 
 
+
 const today =
 
 `${now.getFullYear()}-${
@@ -35,9 +36,11 @@ normalizeDate(t.date)===today
 
 
 
+
 const weekTrades =
 
 getThisWeekTrades(trades);
+
 
 
 
@@ -78,11 +81,13 @@ true
 
 
 
+
 ${createDashboardSection(
 "This Week",
 weekStats,
 false
 )}
+
 
 
 
@@ -107,7 +112,11 @@ false
 // =======================
 
 
-function createDashboardSection(title,stats,showDetail=false){
+function createDashboardSection(
+title,
+stats,
+showDetail=false
+){
 
 
 return `
@@ -141,6 +150,7 @@ stats.winRate+"%"
 
 
 
+
 ${
 showDetail
 
@@ -157,6 +167,7 @@ createStatCard(
 "Worst Loss",
 stats.worstLoss
 )
+
 
 :
 
@@ -188,7 +199,7 @@ stats.count
 
 
 // =======================
-// Date Normalize
+// Normalize Date
 // =======================
 
 
@@ -204,6 +215,13 @@ return "";
 
 const parts =
 date.split("-");
+
+
+if(parts.length!==3){
+
+return "";
+
+}
 
 
 return (
@@ -234,6 +252,11 @@ String(parts[2]).padStart(2,"0")
 
 
 
+
+
+// =======================
+// Statistics
+// =======================
 
 
 function calculateStats(trades){
@@ -279,6 +302,7 @@ let wins=0;
 let best=0;
 
 let worst=0;
+
 
 
 
@@ -331,6 +355,8 @@ worst=p;
 
 
 
+
+
 return {
 
 
@@ -359,9 +385,13 @@ winRate:
 bestWin:
 
 best>0
+
 ?
+
 "+$"+best.toFixed(2)
+
 :
+
 "+$0.00",
 
 
@@ -369,9 +399,13 @@ best>0
 worstLoss:
 
 worst<0
+
 ?
+
 "-$"+Math.abs(worst).toFixed(2)
+
 :
+
 "-$0.00",
 
 
@@ -392,11 +426,22 @@ count:trades.length
 
 
 
-function createStatCard(title,value,data=null){
+// =======================
+// Card
+// =======================
+
+
+function createStatCard(
+title,
+value,
+data=null
+){
 
 
 
 let colorClass="";
+
+
 
 
 
@@ -442,6 +487,7 @@ colorClass="bright-green";
 
 
 
+
 if(title==="Worst Loss"){
 
 colorClass="bright-red";
@@ -473,6 +519,7 @@ ${value}
 
 `;
 
+
 }
 
 
@@ -480,6 +527,11 @@ ${value}
 
 
 
+
+
+// =======================
+// This Week
+// =======================
 
 
 function getThisWeekTrades(trades){
@@ -492,6 +544,7 @@ const now = new Date();
 
 const day =
 now.getDay() || 7;
+
 
 
 
@@ -513,27 +566,64 @@ monday.setHours(0,0,0,0);
 
 
 
+const sunday = new Date(monday);
+
+
+sunday.setDate(
+monday.getDate()+7
+);
+
+
+sunday.setHours(0,0,0,0);
+
+
+
+
+
+
+
+
 return trades.filter(t=>{
+
+
+const date =
+normalizeDate(t.date);
+
+
+
+if(!date){
+
+return false;
+
+}
+
+
 
 
 const tradeDate =
 
 new Date(
+date+"T00:00:00"
+);
 
-normalizeDate(t.date)
 
-+
-"T00:00:00"
+
+
+
+return (
+
+tradeDate>=monday
+
+&&
+
+tradeDate<sunday
 
 );
 
 
 
-return tradeDate>=monday;
-
-
-
 });
+
 
 
 }
