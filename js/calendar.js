@@ -1564,6 +1564,7 @@ const trade =
 parseTradeText(text);
 
 
+console.log(trade);
 
 
 

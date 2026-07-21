@@ -12,28 +12,33 @@ getTrades();
 
 const now = new Date();
 
+
 const today =
-now.getFullYear()
-+
-"-"
-+
+
+`${now.getFullYear()}-${
 String(now.getMonth()+1).padStart(2,"0")
-+
-"-"
-+
-String(now.getDate()).padStart(2,"0");
+}-${
+String(now.getDate()).padStart(2,"0")
+}`;
+
 
 
 
 const todayTrades =
+
 trades.filter(t=>
-t.date===today
+
+normalizeDate(t.date)===today
+
 );
 
 
 
+
 const weekTrades =
+
 getThisWeekTrades(trades);
+
 
 
 
@@ -53,6 +58,7 @@ calculateStats(trades);
 
 
 
+
 page.innerHTML = `
 
 
@@ -63,14 +69,11 @@ Dashboard
 
 
 
-
-
 ${createDashboardSection(
 "Today",
 todayStats,
 true
 )}
-
 
 
 
@@ -84,7 +87,6 @@ false
 
 
 
-
 ${createDashboardSection(
 "Total",
 totalStats,
@@ -93,21 +95,19 @@ false
 
 
 
-
 `;
-
-
 
 }
 
 
 
 
+// =======================
+// Section
+// =======================
 
 
-
-
-function createDashboardSection(title,stats){
+function createDashboardSection(title,stats,showDetail=false){
 
 
 return `
@@ -117,15 +117,12 @@ return `
 
 
 <h2>
-
 ${title}
-
 </h2>
 
 
 
 <div class="cards">
-
 
 
 ${createStatCard(
@@ -144,27 +141,28 @@ stats.winRate+"%"
 
 
 
-${showDetail
+${
+showDetail
+
 ?
+
 createStatCard(
 "Best Win",
 stats.bestWin
 )
-:
-""}
 
++
 
-
-${title==="Today"
-?
 createStatCard(
 "Worst Loss",
 stats.worstLoss
 )
-:
-""
-}
 
+:
+
+""
+
+}
 
 
 
@@ -175,12 +173,10 @@ stats.count
 
 
 
-
 </div>
 
 
 </div>
-
 
 
 `;
@@ -188,6 +184,52 @@ stats.count
 }
 
 
+
+
+
+// =======================
+// Date Normalize
+// =======================
+
+
+function normalizeDate(date){
+
+
+if(!date){
+
+return "";
+
+}
+
+
+const parts =
+date.split("-");
+
+
+return (
+
+parts[0]
+
++
+
+"-"
+
++
+
+String(parts[1]).padStart(2,"0")
+
++
+
+"-"
+
++
+
+String(parts[2]).padStart(2,"0")
+
+);
+
+
+}
 
 
 
@@ -210,24 +252,20 @@ profitValue:0,
 
 principal:0,
 
-
-winRate:0,
-
+winRate:"0.0",
 
 bestWin:"+$0.00",
 
-
 worstLoss:"-$0.00",
 
-
 count:0
-
 
 
 };
 
 
 }
+
 
 
 
@@ -241,6 +279,7 @@ let wins=0;
 let best=0;
 
 let worst=0;
+
 
 
 
@@ -297,15 +336,14 @@ return {
 
 profit:
 
-
 (profit>=0?"+$":"-$")
 +
-Math.abs(profit)
-.toFixed(2),
+Math.abs(profit).toFixed(2),
 
 
 
 profitValue:profit,
+
 
 principal:principal,
 
@@ -313,14 +351,12 @@ principal:principal,
 
 winRate:
 
-
 ((wins/trades.length)*100)
 .toFixed(1),
 
 
 
 bestWin:
-
 
 best>0
 ?
@@ -331,7 +367,6 @@ best>0
 
 
 worstLoss:
-
 
 worst<0
 ?
@@ -357,14 +392,11 @@ count:trades.length
 
 
 
-
-
 function createStatCard(title,value,data=null){
 
 
 
 let colorClass="";
-
 
 
 
@@ -390,20 +422,19 @@ principal:data.principal
 if(title==="Win Rate"){
 
 
-if(Number(value.replace("%",""))>=50){
+if(Number(value)>=50){
 
 colorClass="bright-green";
 
 }
 
+
 }
 
 
 
 
-
 if(title==="Best Win"){
-
 
 colorClass="bright-green";
 
@@ -413,10 +444,10 @@ colorClass="bright-green";
 
 if(title==="Worst Loss"){
 
-
 colorClass="bright-red";
 
 }
+
 
 
 
@@ -428,19 +459,13 @@ return `
 
 
 <h3>
-
 ${title}
-
 </h3>
 
 
-
 <p class="${colorClass}">
-
 ${value}
-
 </p>
-
 
 
 </div>
@@ -457,13 +482,11 @@ ${value}
 
 
 
-
 function getThisWeekTrades(trades){
 
 
 
-const now =
-new Date();
+const now = new Date();
 
 
 
@@ -472,9 +495,7 @@ now.getDay() || 7;
 
 
 
-const monday =
-
-new Date(
+const monday = new Date(
 
 now.getFullYear(),
 
@@ -498,7 +519,12 @@ return trades.filter(t=>{
 const tradeDate =
 
 new Date(
-t.date+"T00:00:00"
+
+normalizeDate(t.date)
+
++
+"T00:00:00"
+
 );
 
 
@@ -508,7 +534,6 @@ return tradeDate>=monday;
 
 
 });
-
 
 
 }
