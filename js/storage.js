@@ -46,6 +46,12 @@ trade.marked=false;
 }
 
 
+if(trade.tag===undefined){
+
+trade.tag="";
+
+}
+
 
 
 trades.push(trade);

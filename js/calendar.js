@@ -399,21 +399,30 @@ Add Trade
 
 
 <label>
-
-Trade Date & Time
-
+Date
 </label>
-
-
 
 <input
 
-id="trade-datetime"
+id="trade-date"
 
-placeholder="2026/7/20 15:01:30"
+type="date"
 
 >
 
+
+
+<label>
+Time
+</label>
+
+<input
+
+id="trade-time"
+
+type="time"
+
+>
 
 
 
@@ -443,71 +452,44 @@ Asset Type
 
 
 <label>
-
-Trade Text
-
+Symbol
 </label>
 
-
-
-<textarea
-
-id="trade-text"
-
-placeholder="Paste your trade description here"
-
-></textarea>
-
-
-
+<input id="trade-symbol">
 
 
 <label>
-
-Emotion
-
+Type
 </label>
 
+<select id="trade-type">
 
-<select id="emotion">
+<option>Long</option>
 
-
-<option>Neutral</option>
-
-<option>Confident</option>
-
-<option>Fear</option>
-
-<option>Greedy</option>
-
-<option>Excited</option>
-
-<option>Regret</option>
-
+<option>Short</option>
 
 </select>
 
 
+<label>
+Entry Price
+</label>
 
+<input id="trade-entry" type="number">
 
 
 <label>
-
-Decision Type
-
+Close Price
 </label>
 
-
-<select id="decision">
-
-
-<option>Self</option>
-
-<option>Trade Follow</option>
+<input id="trade-close" type="number">
 
 
-</select>
+<label>
+Quantity
+</label>
 
+<input id="trade-quantity" type="number">
 
 
 
@@ -525,9 +507,9 @@ Note
 
 
 
-<button onclick="handleTradeParse()">
+<button onclick="handleAddTrade()">
 
-Parse Trade
+Save Trade
 
 </button>
 
@@ -1333,10 +1315,6 @@ wins/trades.length*100
 0;
 
 
-
-
-
-
 document
 
 .getElementById("day-details")
@@ -1344,80 +1322,57 @@ document
 .innerHTML = `
 
 
-
 <div class="day-info">
 
 
-<h2>
+<h2 class="day-title">
 
 ${getMonthName()}
-
 ${day},
-
 ${currentYear}
 
 </h2>
 
 
 
-
-
-
 <div class="day-summary">
 
 
+<div>
 <b>
-
-${trades.length}
-
-Trades
-
+${trades.length} Trades
 </b>
+</div>
 
 
 
-<span class="${
-
+<div class="${
 totalProfit>=0
-
 ?
-
 "dark-green"
-
 :
-
 "dark-red"
-
 }">
 
-
 ${
-
 totalProfit>=0
-
 ?
-
 "+$"
-
 :
-
 "-$"
-
 }
 
 ${Math.abs(totalProfit).toFixed(2)}
 
-
-</span>
-
+</div>
 
 
-<span>
+
+<div>
 
 Win ${winRate}%
 
-</span>
-
+</div>
 
 
 </div>
@@ -1425,71 +1380,112 @@ Win ${winRate}%
 
 
 
+
+<div class="daily-note-section">
+
+
+<div class="daily-note-header">
+
+
+<h3>
+Daily Note
+</h3>
+
+
+
+<button
+
+class="edit-day-btn"
+
+onclick="editDailyNote('${date}')"
+
+>
+✏️
+</button>
+
+
+</div>
+
+
+
+
+<div class="daily-note-content">
+
+${getDailyNote(date) || "No note yet"}
+
+</div>
+
+
+</div>
+
+
+
+
+<hr>
+
+
+
+
+
+<h3>
+
+Today's Trades
+
+</h3>
 
 
 
 <div class="trade-list">
 
 
-
 ${
-
-
 trades.length
-
 
 ?
 
-
-trades.map((t,index)=>`
-
+trades.map(t=>`
 
 
-<div class="mini-trade">
+<div class="mini-trade-row">
 
 
 
-<div>
+<span class="trade-time">
 
-
-<b>
-
-${index+1}. ${t.symbol || "-"}
-
-</b>
-
-
-<span>
-
-${t.type || "-"}
+${t.time || "--:--"}
 
 </span>
 
 
-</div>
+
+
+<span class="trade-symbol">
+
+${t.symbol || "-"}
+
+</span>
 
 
 
 
+<span class="trade-note">
 
-<div>
+${t.note || ""}
+
+</span>
+
+
 
 
 <span class="${getProfitClass(t)}">
 
 
 ${
-
 t.profit>=0
-
 ?
-
 "+$"
-
 :
-
 "-$"
-
 }
 
 ${Math.abs(t.profit).toFixed(2)}
@@ -1498,33 +1494,21 @@ ${Math.abs(t.profit).toFixed(2)}
 </span>
 
 
-</div>
-
-
-
 
 </div>
-
 
 
 `).join("")
 
-
-
 :
 
-
 "<p>No trades</p>"
-
 
 }
 
 
 
 </div>
-
-
-
 
 
 
@@ -1538,7 +1522,228 @@ ${Math.abs(t.profit).toFixed(2)}
 }
 
 
+// ================================
+// Daily Note
+// ================================
 
+
+function getDailyNotes(){
+
+
+const data =
+
+localStorage.getItem("dailyNotes");
+
+
+return data
+
+?
+
+JSON.parse(data)
+
+:
+
+{};
+
+
+}
+
+
+
+
+
+
+
+function getDailyNote(date){
+
+
+const notes =
+
+getDailyNotes();
+
+
+
+return notes[date] || "";
+
+
+}
+
+
+
+
+
+
+
+
+function editDailyNote(date){
+
+
+
+const current =
+
+getDailyNote(date);
+
+
+
+
+
+document.body.insertAdjacentHTML(
+
+"beforeend",
+
+
+`
+
+
+<div class="edit-modal" id="daily-note-modal">
+
+
+<div class="edit-box">
+
+
+
+<h2>
+
+Daily Note
+
+</h2>
+
+
+
+<p>
+
+${date}
+
+</p>
+
+
+
+
+<textarea
+
+id="daily-note-input"
+
+>
+
+${current}
+
+</textarea>
+
+
+
+
+<button
+
+onclick="saveDailyNote('${date}')"
+
+>
+
+Save
+
+</button>
+
+
+
+<button
+
+onclick="closeDailyNoteModal()"
+
+>
+
+Cancel
+
+</button>
+
+
+
+
+</div>
+
+
+</div>
+
+
+`
+
+);
+
+
+
+}
+
+
+
+
+
+
+
+function saveDailyNote(date){
+
+
+
+const text =
+
+document.getElementById("daily-note-input").value;
+
+
+
+
+const notes =
+
+getDailyNotes();
+
+
+
+notes[date]=text;
+
+
+
+localStorage.setItem(
+
+"dailyNotes",
+
+JSON.stringify(notes)
+
+);
+
+
+
+closeDailyNoteModal();
+
+
+
+refreshCalendar();
+
+
+
+}
+
+
+
+
+
+
+
+
+function closeDailyNoteModal(){
+
+
+
+const modal =
+
+document.getElementById("daily-note-modal");
+
+
+
+if(modal){
+
+modal.remove();
+
+}
+
+
+
+}
 
 
 
@@ -1547,77 +1752,114 @@ ${Math.abs(t.profit).toFixed(2)}
 // Add Trade
 // ================================
 
+function handleAddTrade(){
+
+const date =
+document.getElementById("trade-date").value;
 
 
-function handleTradeParse(){
+const time =
+document.getElementById("trade-time").value;
 
 
-
-const text =
-
-document.getElementById("trade-text").value;
+const trade={
 
 
+date:date,
 
-const trade =
-
-parseTradeText(text);
-
-
-console.log(trade);
+time:time,
 
 
-
-const datetime =
-
-document.getElementById("trade-datetime").value;
+assetType:
+document.getElementById("asset-type").value,
 
 
-
-const parsed =
-
-parseTradeDateTime(datetime);
+symbol:
+document.getElementById("trade-symbol").value,
 
 
+type:
+document.getElementById("trade-type").value,
 
 
-
-trade.date = parsed.date;
-
-
-trade.time = parsed.time;
-
+entry:
+Number(
+document.getElementById("trade-entry").value
+)||0,
 
 
-
-trade.assetType =
-
-document.getElementById("asset-type").value;
-
-
-
-trade.emotion =
-
-document.getElementById("emotion").value;
+close:
+Number(
+document.getElementById("trade-close").value
+)
+||0,
 
 
+quantity:
+Number(
+document.getElementById("trade-quantity").value
+)
+||0,
 
-trade.decision =
 
-document.getElementById("decision").value;
+note:
+document.getElementById("trade-note").value,
 
 
+tag:"",
 
-trade.note =
 
-document.getElementById("trade-note").value;
+marked:false
+
+
+};
 
 
 
-trade.marked=false;
+
+if(trade.type==="Long"){
+
+
+trade.profit =
+(trade.close-trade.entry)
+*
+trade.quantity;
+
+
+}
+
+
+
+if(trade.type==="Short"){
+
+
+trade.profit =
+(trade.entry-trade.close)
+*
+trade.quantity;
+
+
+}
+
+
+
+trade.principal =
+trade.entry *
+trade.quantity;
+
+
+
+trade.roi =
+trade.principal
+?
+trade.profit/trade.principal*100
+:
+0;
+
 
 
 saveTrade(trade);
+
 
 
 alert("Trade Saved");
@@ -1626,13 +1868,9 @@ alert("Trade Saved");
 refreshCalendar();
 
 
-if(typeof loadDashboard === "function"){
-    loadDashboard();
 }
 
 
-
-}
 
 
 
@@ -1852,19 +2090,43 @@ trades.map(t=>`
 <td>
 
 
-<button
-
-class="star-btn ${t.marked?"marked":""}"
-
-onclick="toggleStar('${t.id}')"
-
+<select 
+class="trade-icon-select"
+onchange="changeTradeIcon('${t.id}',this.value)"
 >
 
 
-${t.marked?"★":"☆"}
+<option value="" ${!t.icon?"selected":""}>
+☆
+</option>
 
 
-</button>
+<option value="⭐" ${t.icon==="⭐"?"selected":""}>
+⭐
+</option>
+
+
+<option value="📌" ${t.icon==="📌"?"selected":""}>
+📌
+</option>
+
+
+<option value="🔥" ${t.icon==="🔥"?"selected":""}>
+🔥
+</option>
+
+
+<option value="💡" ${t.icon==="💡"?"selected":""}>
+💡
+</option>
+
+
+<option value="⚠️" ${t.icon==="⚠️"?"selected":""}>
+⚠️
+</option>
+
+
+</select>
 
 
 
@@ -2042,7 +2304,38 @@ refreshCalendar();
 
 }
 
+function changeTradeIcon(id,icon){
 
+
+console.log("ICON CHANGE",id,icon);
+
+
+const trades=getTrades();
+
+
+const trade =
+trades.find(t=>t.id===id);
+
+
+if(!trade){
+
+console.log("TRADE NOT FOUND");
+
+return;
+
+}
+
+
+trade.icon = icon;
+
+
+updateTrade(trade);
+
+
+refreshCalendar();
+
+
+}
 
 
 
@@ -2136,21 +2429,34 @@ Edit Trade
 
 <label>
 
-Date & Time
+Date
 
 </label>
 
 
 <input
 
-id="edit-datetime"
+id="edit-date"
 
-value="${trade.date || ""} ${trade.time || ""}"
+value="${trade.date || ""}"
 
 >
 
 
+<label>
 
+Time
+
+</label>
+
+
+<input
+
+id="edit-time"
+
+value="${trade.time || ""}"
+
+>
 
 
 <label>
@@ -2243,41 +2549,6 @@ value="${trade.quantity || ""}"
 >
 
 
-
-
-
-<label>
-
-Emotion
-
-</label>
-
-
-<input
-
-id="edit-emotion"
-
-value="${trade.emotion || ""}"
-
->
-
-
-
-
-<label>
-
-Decision
-
-</label>
-
-
-<input
-
-id="edit-decision"
-
-value="${trade.decision || ""}"
-
->
 
 
 
@@ -2378,20 +2649,12 @@ return;
 
 
 
-
-const parsed =
-
-parseTradeDateTime(
-
-document.getElementById("edit-datetime").value
-
-);
+trade.date =
+document.getElementById("edit-date").value;
 
 
-
-trade.date = parsed.date;
-
-trade.time = parsed.time;
+trade.time =
+document.getElementById("edit-time").value;
 
 
 
@@ -2437,18 +2700,6 @@ Number(
 document.getElementById("edit-quantity").value
 
 )||0;
-
-
-
-trade.emotion =
-
-document.getElementById("edit-emotion").value;
-
-
-
-trade.decision =
-
-document.getElementById("edit-decision").value;
 
 
 
