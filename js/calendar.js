@@ -1466,6 +1466,11 @@ ${t.symbol || "-"}
 </span>
 
 
+<span class="trade-type">
+
+${t.type || "-"}
+
+</span>
 
 
 <span class="trade-note">

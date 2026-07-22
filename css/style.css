@@ -768,6 +768,8 @@ Trade Area
 
     margin-top:30px;
 
+    align-items:stretch;
+
 
 }
 
@@ -791,7 +793,7 @@ Trade Area
 
 .history{
 
-max-height:600px;
+height:100%;
 
 overflow-y:auto;
 
@@ -2127,16 +2129,20 @@ font-weight:500;
 
 .trade-symbol{
 
-    flex:1;
+    width:140px;
 
 }
 
+.trade-type{
 
+    width:80px;
+
+}
 
 .trade-note{
 
     flex:2;
-    color:#666;
+    color:#e5e7eb;
 
 }
 
