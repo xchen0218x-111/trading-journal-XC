@@ -1994,9 +1994,20 @@ timePart.substring(0,5)
 function renderTradeHistory(){
 
 
-const trades = getCurrentTrades();
+const trades = getCurrentTrades()
+.sort((a,b)=>{
 
+const dateA = new Date(
+`${a.date} ${a.time || "00:00"}`
+);
 
+const dateB = new Date(
+`${b.date} ${b.time || "00:00"}`
+);
+
+return dateB - dateA;
+
+});
 
 
 if(!trades.length){
