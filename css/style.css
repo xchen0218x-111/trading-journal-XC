@@ -768,7 +768,7 @@ Trade Area
 
     margin-top:30px;
 
-    align-items:stretch;
+    align-items:start;
 
 
 }
@@ -790,22 +790,6 @@ Trade Area
 
 
 }
-
-.add-trade{
-
-    height:100%;
-
-}
-
-.history{
-
-height:100%;
-
-overflow-y:auto;
-
-}
-
-
 
 
 
@@ -970,6 +954,8 @@ Trade History
 .history{
 
     height:100%;
+
+    max-height:1000px;
 
     overflow-y:auto;
 
