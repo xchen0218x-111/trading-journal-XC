@@ -472,6 +472,23 @@ Type
 
 
 <label>
+Trend
+</label>
+
+<select id="trade-trend">
+
+<option>大趋势跟进</option>
+
+<option>大趋势回调</option>
+
+<option>小趋势跟进</option>
+
+<option>小趋势回调</option>
+
+</select>
+
+
+<label>
 Entry Price
 </label>
 
@@ -523,8 +540,6 @@ Save Trade
 
 
 
-
-
 <div class="history">
 
 
@@ -534,6 +549,9 @@ Trade History
 
 </h2>
 
+
+
+<div class="history-table">
 
 
 <table>
@@ -549,7 +567,6 @@ ${renderTradeHistory()}
 
 
 </table>
-
 
 
 </div>
@@ -1111,6 +1128,20 @@ getCurrentTrades()
 
 
 
+trades.sort((a,b)=>{
+
+return (
+(a.time || "00:00")
+.localeCompare(
+b.time || "00:00"
+)
+
+);
+
+});
+
+
+
 
 
 if(!trades.length){
@@ -1466,9 +1497,9 @@ ${t.symbol || "-"}
 </span>
 
 
-<span class="trade-type">
+<span class="trade-trend ${getTrendClass(t.trend)}">
 
-${t.type || "-"}
+${t.trend || "-"}
 
 </span>
 
@@ -1769,7 +1800,6 @@ document.getElementById("trade-time").value;
 
 const trade={
 
-
 date:date,
 
 time:time,
@@ -1785,6 +1815,10 @@ document.getElementById("trade-symbol").value,
 
 type:
 document.getElementById("trade-type").value,
+
+
+trend:
+document.getElementById("trade-trend").value,
 
 
 entry:
@@ -2063,7 +2097,7 @@ Symbol
 
 
 <th>
-Type
+Trend
 </th>
 
 
@@ -2185,7 +2219,11 @@ ${t.symbol || "-"}
 
 <td>
 
-${t.type || "-"}
+<span class="trade-trend ${getTrendClass(t.trend)}">
+
+${t.trend || "-"}
+
+</span>
 
 </td>
 
@@ -2838,6 +2876,35 @@ loadCalendar();
 
 
 
+// ================================
+// Trend Color
+// ================================
+
+function getTrendClass(trend){
+
+    if(!trend){
+        return "";
+    }
+
+    if(trend==="大趋势跟进"){
+        return "trend-big-follow";
+    }
+
+    if(trend==="大趋势回调"){
+        return "trend-big-pullback";
+    }
+
+    if(trend==="小趋势跟进"){
+        return "trend-small-follow";
+    }
+
+    if(trend==="小趋势回调"){
+        return "trend-small-pullback";
+    }
+
+    return "";
+
+}
 
 
 
