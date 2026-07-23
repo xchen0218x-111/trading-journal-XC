@@ -449,10 +449,26 @@ Day Detail
 
     border-top:1px solid #374151;
 
-    margin:25px 0;
+    margin:50px 0 35px 0;
 
 }
 
+.daily-note-box{
+
+    margin-bottom:35px;
+
+}
+
+.trade-title{
+
+    margin-top:0;
+
+    margin-bottom:20px;
+
+    font-size:16px;
+
+    font-weight:600;
+}
 
 
 /* =====================
@@ -482,6 +498,8 @@ Trade Area
     padding:25px;
 
     border-radius:15px;
+
+    height:100%;
 
 }
 
@@ -682,7 +700,11 @@ Trade History
 
 .history{
 
-    height:700px;
+    height:100%;
+
+    max-height:none;
+
+    min-height:100%;
 
     overflow-y:auto;
 
@@ -697,9 +719,9 @@ Trade History
 
     width:100%;
 
-    border-collapse:collapse;
+    border-collapse:separate;
 
-    table-layout:fixed;
+    border-spacing:0;
 
 }
 
@@ -710,7 +732,7 @@ Trade History
 /* Freeze Header */
 
 
-.history thead{
+.history thead th{
 
     position:sticky;
 
@@ -723,7 +745,33 @@ Trade History
 }
 
 
+.history{
 
+    height:900px;
+
+    overflow-y:auto;
+
+}
+
+
+.history thead{
+
+    position:sticky;
+
+    top:0;
+
+    z-index:30;
+
+}
+
+
+.history table{
+
+    border-collapse:separate;
+
+    border-spacing:0;
+
+}
 
 
 .history th{
@@ -1544,4 +1592,22 @@ Responsive
 
     }
 
+}
+
+
+/* Daily Note and Today's Trades spacing fix */
+
+.daily-note-section{
+    margin-bottom:20px;
+}
+
+
+.day-info hr{
+    margin-top:0;
+    margin-bottom:20px;
+}
+
+
+.day-info h3{
+    margin-top:0;
 }

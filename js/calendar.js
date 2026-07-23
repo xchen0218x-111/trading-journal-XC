@@ -557,6 +557,13 @@ Trade History
 <table>
 
 
+<thead>
+
+${renderTradeHeader()}
+
+</thead>
+
+
 <tbody id="trade-history">
 
 
@@ -2029,6 +2036,58 @@ timePart.substring(0,5)
 // Trade History
 // ================================
 
+function renderTradeHeader(){
+
+return `
+
+<tr>
+
+<th>
+⭐
+</th>
+
+
+<th>
+Date & Time
+</th>
+
+
+<th>
+Symbol
+</th>
+
+
+<th>
+Trend
+</th>
+
+
+<th>
+Profit
+</th>
+
+
+<th>
+Note
+</th>
+
+
+<th>
+Edit
+</th>
+
+
+<th>
+Delete
+</th>
+
+
+</tr>
+
+`;
+
+}
+
 
 function renderTradeHistory(){
 
@@ -2076,60 +2135,7 @@ No trades yet
 
 
 
-return `
-
-
-<tr>
-
-<th>
-⭐
-</th>
-
-
-<th>
-Date & Time
-</th>
-
-
-<th>
-Symbol
-</th>
-
-
-<th>
-Trend
-</th>
-
-
-<th>
-Profit
-</th>
-
-
-<th>
-Note
-</th>
-
-
-<th>
-Edit
-</th>
-
-
-<th>
-Delete
-</th>
-
-
-</tr>
-
-
-
-`
-
-+
-
-trades.map(t=>`
+return trades.map(t=>`
 
 
 
